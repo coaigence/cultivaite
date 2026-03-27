@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>coaigence | cultivaite</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --violet: #3B1F5E;
+    --violet-dark: #271540;
+    --violet-mid: #4E2A7A;
+    --gold: #C9A84C;
+    --gold-light: #E2C97E;
+    --gold-pale: #F5EDD5;
+    --amethyst: #8A5DB7;
+    --cream: #FAF6EF;
+    --cream-dark: #F0E9D8;
+    --white: #FFFFFF;
+    --text-dark: #1A0F2E;
+    --text-mid: #4A3A6A;
+    --success: #4CAF7A;
+    --error: #C94C4C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--violet-dark);
+    min-height: 100vh;
+    color: var(--cream);
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(138,93,183,0.25) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(59,31,94,0.8) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+  }
+
+  /* HEADER */
+  header {
+    padding: 28px 0 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+    margin-bottom: 28px;
+  }
+
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    color: var(--gold-light);
+    text-transform: lowercase;
+    margin-bottom: 4px;
+  }
+
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 0.05em;
+  }
+
+  header h1 span {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .sub-tag {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--amethyst);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* TAB NAV */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    background: transparent;
+    color: rgba(250,246,239,0.5);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--violet-mid), var(--violet));
+    color: var(--gold-light);
+    border: 1px solid rgba(201,168,76,0.4);
+  }
+
+  .tab-btn:hover:not(.active) {
+    color: var(--cream);
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CARD */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(8px);
+  }
+
+  .card-label {
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.2);
+  }
+
+  /* FORM FIELDS */
+  .field {
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(250,246,239,0.6);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(201,168,76,0.6);
+    background: rgba(255,255,255,0.09);
+  }
+
+  textarea { resize: vertical; min-height: 72px; }
+
+  select option { background: var(--violet-dark); color: var(--cream); }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* IMAGE CAPTURE ZONE */
+  .image-zone {
+    border: 2px dashed rgba(201,168,76,0.3);
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .image-zone:hover {
+    border-color: rgba(201,168,76,0.6);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .image-zone.has-image {
+    border-color: var(--gold);
+    padding: 0;
+  }
+
+  .image-zone-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .image-zone-text {
+    font-size: 11px;
+    color: rgba(250,246,239,0.5);
+    letter-spacing: 0.1em;
+  }
+
+  .image-zone-text strong {
+    display: block;
+    color: var(--gold-light);
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  #card-preview {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: none;
+  }
+
+  .image-type-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .img-type-btn {
+    flex: 1;
+    padding: 8px 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    color: rgba(250,246,239,0.6);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .img-type-btn.selected {
+    background: rgba(201,168,76,0.15);
+    border-color: var(--gold);
+    color: var(--gold-light);
+  }
+
+  /* AI SPINNER */
+  .ai-spinner-wrap {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 0;
+    gap: 14px;
+  }
+  .ai-spinner-wrap.active { display: flex; }
+  .spinner-ring {
+    width: 44px; height: 44px;
+    border: 3px solid rgba(201,168,76,0.15);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.85s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--amethyst);
+    text-transform: uppercase;
+  }
+
+  /* CONFIRMATION CARD */
+  .confirm-card {
+    display: none;
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: fadeIn 0.35s ease;
+  }
+  .confirm-card.active { display: block; }
+
+  .confirm-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .confirm-avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet-mid), var(--amethyst));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold-light);
+    flex-shrink: 0;
+  }
+  .confirm-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+  .confirm-company {
+    font-size: 11px;
+    color: rgba(250,246,239,0.5);
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .confirm-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .confirm-field { }
+  .confirm-field-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 3px;
+  }
+  .confirm-field input {
+    width: 100%;
+    padding: 8px 11px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 7px;
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .confirm-field input:focus { border-color: rgba(201,168,76,0.5); }
+  .confirm-field.full { grid-column: 1 / -1; }
+
+  .confirm-source-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .confirm-img-thumb {
+    width: 100%;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    display: none;
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .scan-step {
+    display: none;
+  }
+  .scan-step.active { display: block; }
+
+  /* IMPORT PANEL */
+  .import-source-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .import-source-btn {
+    padding: 16px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    color: rgba(250,246,239,0.6);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .import-source-btn .platform-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+
+  .import-source-btn:hover,
+  .import-source-btn.selected {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.1);
+    color: var(--gold-light);
+  }
+
+  .import-drop {
+    border: 2px dashed rgba(201,168,76,0.3);
+    border-radius: 12px;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .import-drop:hover {
+    border-color: rgba(201,168,76,0.6);
+    background: rgba(201,168,76,0.04);
+  }
+
+  .import-drop-text {
+    font-size: 11px;
+    color: rgba(250,246,239,0.4);
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+
+  .import-drop-text strong { display: block; color: var(--gold-light); font-size: 13px; margin-bottom: 4px; }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    border: none;
+    border-radius: 10px;
+    color: var(--violet-dark);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(201,168,76,0.35);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 10px;
+    color: rgba(250,246,239,0.6);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold-light); }
+
+  /* CSV QUEUE */
+  .queue-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .queue-count {
+    background: var(--gold);
+    color: var(--violet-dark);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+  }
+
+  .lead-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .lead-row:last-child { border-bottom: none; }
+
+  .lead-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet-mid), var(--amethyst));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold-light);
+    flex-shrink: 0;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .lead-info { flex: 1; min-width: 0; }
+
+  .lead-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--cream);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lead-meta {
+    font-size: 10px;
+    color: rgba(250,246,239,0.4);
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  .lead-source-tag {
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(138,93,183,0.2);
+    border: 1px solid rgba(138,93,183,0.3);
+    color: var(--amethyst);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .lead-del {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.2);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .lead-del:hover { color: var(--error); }
+
+  .empty-queue {
+    text-align: center;
+    padding: 32px 0;
+    color: rgba(250,246,239,0.25);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+  }
+
+  .empty-queue .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: linear-gradient(135deg, var(--violet-mid), var(--violet));
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 40px;
+    padding: 12px 24px;
+    color: var(--gold-light);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    z-index: 1000;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* HIDDEN FILE INPUTS */
+  #image-input, #import-file { display: none; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 4px; }
+
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+    .import-source-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* SETTINGS DRAWER */
+  .settings-gear {
+    position: absolute;
+    top: 28px;
+    right: 0;
+    background: none;
+    border: none;
+    color: rgba(201,168,76,0.4);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s, transform 0.3s;
+    line-height: 1;
+  }
+  .settings-gear:hover { color: var(--gold); transform: rotate(30deg); }
+  .settings-drawer {
+    display: none;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: fadeIn 0.25s ease;
+  }
+  .settings-drawer.open { display: block; }
+  .api-key-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+  .api-key-row input {
+    flex: 1; padding: 10px 13px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px; outline: none; letter-spacing: 0.05em;
+  }
+  .api-key-row input:focus { border-color: rgba(201,168,76,0.5); }
+  .btn-save-key {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border: none; border-radius: 8px;
+    color: var(--violet-dark);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+  }
+  .btn-save-key:hover { opacity: 0.85; }
+  .key-status { font-size: 10px; letter-spacing: 0.1em; margin-top: 8px; color: rgba(250,246,239,0.4); }
+  .key-status.set { color: #4CAF7A; }
+</style>
+</head>
+<body>
+
+<div class="app-wrap">
+
+  <header style="position:relative">
+    <div class="brand">coaigence</div>
+    <h1>cultiv<span>ai</span>te</h1>
+    <div class="sub-tag">a hybrid intelligence company</div>
+    <button class="settings-gear" onclick="toggleSettings()" title="API Settings">&#9881;</button>
+  </header>
+
+  <!-- SETTINGS DRAWER -->
+  <div class="settings-drawer" id="settings-drawer">
+    <div class="card-label" style="margin-bottom:10px">AI Extraction Key</div>
+    <p style="font-size:11px;color:rgba(250,246,239,0.45);line-height:1.6;letter-spacing:0.05em;">Your Anthropic API key. Saved only in this browser. Never sent anywhere except api.anthropic.com.</p>
+    <div class="api-key-row">
+      <input type="password" id="api-key-input" placeholder="sk-ant-...">
+      <button class="btn-save-key" onclick="saveApiKey()">Save</button>
+    </div>
+    <div class="key-status" id="key-status">No key saved.</div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('manual')">Manual Entry</button>
+    <button class="tab-btn" onclick="switchTab('scan')">Scan / Photo</button>
+    <button class="tab-btn" onclick="switchTab('import')">Import File</button>
+    <button class="tab-btn" onclick="switchTab('queue')">Export CSV <span id="tab-count"></span></button>
+  </div>
+
+  <!-- =================== MANUAL ENTRY =================== -->
+  <div class="panel active" id="panel-manual">
+
+    <div class="card">
+      <div class="card-label">Contact Info</div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="m-first" placeholder="First">
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="m-last" placeholder="Last">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Company</label>
+        <input type="text" id="m-company" placeholder="Organization or business">
+      </div>
+
+      <div class="field">
+        <label>Title / Role</label>
+        <input type="text" id="m-title" placeholder="e.g. Owner, HR Director">
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="m-email" placeholder="email@domain.com">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="m-phone" placeholder="(xxx) xxx-xxxx">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Website / LinkedIn</label>
+        <input type="url" id="m-url" placeholder="https://...">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Source + Context</div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Source</label>
+          <select id="m-source">
+            <option value="">-- Select --</option>
+            <option>Ridgefield Chamber</option>
+            <option>Waterbury Chamber</option>
+            <option>Women's Forum</option>
+            <option>Networking Event</option>
+            <option>Workshop</option>
+            <option>Referral</option>
+            <option>Cold Outreach</option>
+            <option>Social Media</option>
+            <option>Road Signage</option>
+            <option>Vehicle Wrap</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Event / Campaign</label>
+          <input type="text" id="m-event" list="event-list" placeholder="Select or type..." autocomplete="off" oninput="saveEventOption(this.value)">
+          <datalist id="event-list"></datalist>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Interest / Product</label>
+        <select id="m-interest">
+          <option value="">-- Select --</option>
+          <option>navigaite (workshops)</option>
+          <option>educaite (training)</option>
+          <option>evaluaite (AI readiness)</option>
+          <option>elevaite (automation)</option>
+          <option>generaitions (literacy)</option>
+          <option>conversaite (language)</option>
+          <option>refraime (financial)</option>
+          <option>creaite (content)</option>
+          <option>General / TBD</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="m-notes" placeholder="Quick context, follow-up action, warm/cold signal..."></textarea>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="addManualLead()">Add to Queue</button>
+    <button class="btn-secondary" onclick="clearManual()">Clear Form</button>
+
+  </div>
+
+  <!-- =================== SCAN / PHOTO =================== -->
+  <div class="panel" id="panel-scan">
+
+    <!-- STEP 1: Capture -->
+    <div class="scan-step active" id="scan-step-1">
+
+      <div class="card">
+        <div class="card-label">Image Type</div>
+        <div class="image-type-btns">
+          <button class="img-type-btn selected" onclick="selectImgType(this,'Business Card')">Business Card</button>
+          <button class="img-type-btn" onclick="selectImgType(this,'Vehicle Wrap')">Vehicle Wrap</button>
+          <button class="img-type-btn" onclick="selectImgType(this,'Road Sign')">Road Sign</button>
+          <button class="img-type-btn" onclick="selectImgType(this,'Other')">Other</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Capture</div>
+        <div class="image-zone" id="image-zone" onclick="document.getElementById('image-input').click()">
+          <div class="image-zone-icon">📷</div>
+          <div class="image-zone-text">
+            <strong>Tap to take photo or upload</strong>
+            business card, signage, vehicle wrap...
+          </div>
+        </div>
+        <div class="image-type-btns" style="margin-top:10px">
+          <button class="img-type-btn" onclick="triggerCamera()">📸 Camera</button>
+          <button class="img-type-btn" onclick="triggerGallery()">🖼 Gallery</button>
+        </div>
+      </div>
+
+      <!-- Spinner (shown while AI reads) -->
+      <div class="card">
+        <div class="ai-spinner-wrap" id="ai-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-label">Reading with AI...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STEP 2: Confirm card (shown after extraction) -->
+    <div class="scan-step" id="scan-step-2">
+
+      <div class="card-label" style="margin-bottom:12px">Review + Confirm</div>
+
+      <div class="confirm-card active" id="confirm-card">
+
+        <img id="confirm-thumb" class="confirm-img-thumb" src="" alt="">
+
+        <div class="confirm-avatar-row">
+          <div class="confirm-avatar" id="confirm-initials">?</div>
+          <div>
+            <div class="confirm-name" id="confirm-fullname">Unknown</div>
+            <div class="confirm-company" id="confirm-company-display"></div>
+          </div>
+        </div>
+
+        <div id="ai-note" style="display:none;margin-bottom:12px;padding:9px 13px;background:rgba(138,93,183,0.15);border:1px solid rgba(138,93,183,0.3);border-radius:8px;font-size:11px;color:#C9A84C;letter-spacing:0.08em;text-align:center;"></div>
+        <div class="confirm-fields">
+          <div class="confirm-field">
+            <div class="confirm-field-label">First</div>
+            <input type="text" id="s-first" placeholder="First name">
+          </div>
+          <div class="confirm-field">
+            <div class="confirm-field-label">Last</div>
+            <input type="text" id="s-last" placeholder="Last name">
+          </div>
+          <div class="confirm-field full">
+            <div class="confirm-field-label">Company</div>
+            <input type="text" id="s-company" placeholder="Organization">
+          </div>
+          <div class="confirm-field full">
+            <div class="confirm-field-label">Title</div>
+            <input type="text" id="s-title" placeholder="Role / Title">
+          </div>
+          <div class="confirm-field">
+            <div class="confirm-field-label">Email</div>
+            <input type="email" id="s-email" placeholder="email@domain.com">
+          </div>
+          <div class="confirm-field">
+            <div class="confirm-field-label">Phone</div>
+            <input type="tel" id="s-phone" placeholder="Phone">
+          </div>
+          <div class="confirm-field full">
+            <div class="confirm-field-label">Website</div>
+            <input type="url" id="s-url" placeholder="https://...">
+          </div>
+        </div>
+
+        <div class="confirm-source-row">
+          <div class="confirm-field">
+            <div class="confirm-field-label">Source</div>
+            <select id="s-source" style="width:100%;padding:8px 11px;background:rgba(255,255,255,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:7px;color:var(--cream);font-family:'Montserrat',sans-serif;font-size:12px;outline:none;">
+              <option value="">-- Select --</option>
+              <option>Ridgefield Chamber</option>
+              <option>Waterbury Chamber</option>
+              <option>Women's Forum</option>
+              <option>Networking Event</option>
+              <option>Workshop</option>
+              <option>Referral</option>
+              <option>Road Signage</option>
+              <option>Vehicle Wrap</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="confirm-field">
+            <div class="confirm-field-label">Event</div>
+            <input type="text" id="s-event" list="event-list" placeholder="Select or type..." autocomplete="off" oninput="saveEventOption(this.value)">
+          </div>
+        </div>
+
+        <div class="confirm-field" style="margin-bottom:0">
+          <div class="confirm-field-label">Notes</div>
+          <textarea id="s-notes" placeholder="Quick note..." style="width:100%;padding:8px 11px;background:rgba(255,255,255,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:7px;color:var(--cream);font-family:'Montserrat',sans-serif;font-size:12px;outline:none;resize:vertical;min-height:60px;"></textarea>
+        </div>
+
+      </div>
+
+      <!-- live-update initials/name as user types -->
+      <button class="btn-primary" onclick="addScanLead()">Add to Queue</button>
+      <button class="btn-secondary" onclick="resetScan()">Scan Another</button>
+
+    </div>
+
+    <input type="file" id="image-input" accept="image/*">
+
+  </div>
+
+  <!-- =================== IMPORT =================== -->
+  <div class="panel" id="panel-import">
+
+    <div class="card">
+      <div class="card-label">Platform</div>
+
+      <div class="import-source-grid">
+        <button class="import-source-btn selected" onclick="selectPlatform(this,'LinkedIn')">
+          <span class="platform-icon">💼</span>LinkedIn
+        </button>
+        <button class="import-source-btn" onclick="selectPlatform(this,'HiHello')">
+          <span class="platform-icon">👋</span>HiHello
+        </button>
+        <button class="import-source-btn" onclick="selectPlatform(this,'Popl')">
+          <span class="platform-icon">🔵</span>Popl
+        </button>
+        <button class="import-source-btn" onclick="selectPlatform(this,'Blinq')">
+          <span class="platform-icon">⚡</span>Blinq
+        </button>
+        <button class="import-source-btn" onclick="selectPlatform(this,'Dot')">
+          <span class="platform-icon">⚫</span>.dot
+        </button>
+        <button class="import-source-btn" onclick="selectPlatform(this,'Generic CSV')">
+          <span class="platform-icon">📄</span>Generic CSV
+        </button>
+      </div>
+
+      <div id="platform-hint" style="font-size:11px;color:rgba(250,246,239,0.4);letter-spacing:0.08em;line-height:1.6;margin-bottom:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;">
+        <strong style="color:var(--gold-light)">LinkedIn:</strong> Go to My Network > Connections > Manage > Export Connections. Upload the connections.csv here.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Upload File</div>
+
+      <div class="import-drop" onclick="document.getElementById('import-file').click()">
+        <div style="font-size:32px">📂</div>
+        <div class="import-drop-text">
+          <strong>Drop file or tap to browse</strong>
+          .csv accepted from all platforms
+        </div>
+      </div>
+
+      <input type="file" id="import-file" accept=".csv,.vcf,.txt">
+
+      <div id="import-status" style="display:none;margin-top:12px;padding:12px;background:rgba(76,175,122,0.1);border:1px solid rgba(76,175,122,0.3);border-radius:8px;font-size:12px;color:#4CAF7A;text-align:center;letter-spacing:0.08em;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Source + Event Override</div>
+      <div class="row-2">
+        <div class="field">
+          <label>Source Label</label>
+          <input type="text" id="i-source" placeholder="e.g. LinkedIn Import">
+        </div>
+        <div class="field">
+          <label>Event / Campaign</label>
+          <input type="text" id="i-event" list="event-list" placeholder="Select or type..." autocomplete="off" oninput="saveEventOption(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="processImport()">Import to Queue</button>
+
+  </div>
+
+  <!-- =================== QUEUE =================== -->
+  <div class="panel" id="panel-queue">
+
+    <div class="card">
+      <div class="queue-header">
+        <div class="card-label" style="margin:0">Lead Queue</div>
+        <div class="queue-count" id="queue-count-badge">0 leads</div>
+      </div>
+
+      <div id="lead-list">
+        <div class="empty-queue">
+          <div class="empty-icon">📋</div>
+          No leads yet. Add your first one.
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="exportCSV()">Export CSV for GHL Upload</button>
+    <button class="btn-secondary" onclick="clearQueue()">Clear Queue</button>
+
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+let leads = JSON.parse(localStorage.getItem('coaigence_leads') || '[]');
+let selectedImgType = 'Business Card';
+let selectedPlatform = 'LinkedIn';
+let importFileData = null;
+
+// ============================================================
+//  TAB SWITCHING
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const map = { manual: 0, scan: 1, import: 2, queue: 3 };
+  document.querySelectorAll('.tab-btn')[map[tab]].classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'queue') renderQueue();
+}
+
+// ============================================================
+//  IMAGE TYPE
+// ============================================================
+function selectImgType(btn, type) {
+  document.querySelectorAll('.img-type-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedImgType = type;
+}
+
+// ============================================================
+//  CAMERA / GALLERY
+// ============================================================
+function triggerCamera() {
+  const inp = document.getElementById('image-input');
+  inp.setAttribute('capture', 'environment');
+  inp.click();
+}
+
+function triggerGallery() {
+  const inp = document.getElementById('image-input');
+  inp.removeAttribute('capture');
+  inp.click();
+}
+
+document.getElementById('image-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    // Show spinner, hide step 1 capture zone
+    document.getElementById('ai-spinner').classList.add('active');
+    extractFromImage(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+});
+
+// ============================================================
+//  AI EXTRACTION (Claude API)
+// ============================================================
+// Resize before sending so large phone photos don't silently fail
+function resizeImage(dataUrl, maxWidth) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = function() {
+      const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.88));
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+
+async function extractFromImage(base64Data) {
+  let sendData = base64Data;
+  try { sendData = await resizeImage(base64Data, 1200); } catch(e) {}
+
+  const base64    = sendData.split(',')[1];
+  const mediaType = 'image/jpeg';
+  let parsed = {};
+  let aiNote = '';
+
+  const apiKey = localStorage.getItem('coaigence_api_key') || '';
+  if (!apiKey) {
+    showToast('Add your API key in settings first.');
+    document.getElementById('settings-drawer').classList.add('open');
+    document.getElementById('scan-step-2').classList.remove('active');
+    document.getElementById('scan-step-1').classList.add('active');
+    document.getElementById('ai-spinner').classList.remove('active');
+    return;
+  }
+
+  // 8-second timeout — if AI is slow, drop straight to manual fill
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text', text: 'Extract contact info. Reply ONLY with this JSON, nothing else: {"first":"","last":"","company":"","title":"","email":"","phone":"","website":""}' }
+          ]
+        }]
+      })
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      aiNote = 'AI busy. Fill in below.';
+    } else {
+      const data = await response.json();
+      const raw  = (data.content || []).map(function(c){ return c.text || ''; }).join('').replace(/```json|```/g,'').trim();
+      try { parsed = JSON.parse(raw); }
+      catch(e) { aiNote = 'Fill any missing fields.'; }
+    }
+  } catch(err) {
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') {
+      aiNote = 'AI timed out. Fill in below.';
+    } else {
+      aiNote = 'No connection. Fill in below.';
+    }
+  }
+
+  showConfirmCard(parsed, base64Data, aiNote);
+}
+
+function showConfirmCard(parsed, imgSrc, aiNote) {
+  document.getElementById('ai-spinner').classList.remove('active');
+  document.getElementById('scan-step-1').classList.remove('active');
+  document.getElementById('scan-step-2').classList.add('active');
+
+  // Clear stale data
+  ['s-first','s-last','s-company','s-title','s-email','s-phone','s-url','s-event','s-notes'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('s-source').value = '';
+
+  // Populate from AI
+  function set(id, val) { if (val) document.getElementById(id).value = val; }
+  set('s-first',   parsed.first);
+  set('s-last',    parsed.last);
+  set('s-company', parsed.company);
+  set('s-title',   parsed.title);
+  set('s-email',   parsed.email);
+  set('s-phone',   parsed.phone);
+  set('s-url',     parsed.website);
+
+  // Show note if AI failed or partial
+  var noteEl = document.getElementById('ai-note');
+  if (aiNote) { noteEl.textContent = aiNote; noteEl.style.display = 'block'; }
+  else { noteEl.style.display = 'none'; }
+
+  // Thumb
+  var thumb = document.getElementById('confirm-thumb');
+  thumb.src = imgSrc;
+  thumb.style.display = 'block';
+
+  updateConfirmHeader();
+
+  // Remove old listeners, add fresh
+  ['s-first','s-last','s-company'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.removeEventListener('input', updateConfirmHeader);
+    el.addEventListener('input', updateConfirmHeader);
+  });
+}
+
+function updateConfirmHeader() {
+  const first = document.getElementById('s-first').value.trim();
+  const last  = document.getElementById('s-last').value.trim();
+  const co    = document.getElementById('s-company').value.trim();
+  const name  = [first, last].filter(Boolean).join(' ') || 'Unknown';
+  const initials = ((first[0]||'') + (last[0]||'')).toUpperCase() || '?';
+  document.getElementById('confirm-fullname').textContent = name;
+  document.getElementById('confirm-initials').textContent = initials;
+  document.getElementById('confirm-company-display').textContent = co;
+}
+
+// ============================================================
+//  ADD LEADS
+// ============================================================
+function addManualLead() {
+  const first = document.getElementById('m-first').value.trim();
+  const last  = document.getElementById('m-last').value.trim();
+  if (!first && !last) { showToast('Add at least a name.'); return; }
+
+  leads.push({
+    id: Date.now(),
+    first, last,
+    company:  document.getElementById('m-company').value.trim(),
+    title:    document.getElementById('m-title').value.trim(),
+    email:    document.getElementById('m-email').value.trim(),
+    phone:    document.getElementById('m-phone').value.trim(),
+    website:  document.getElementById('m-url').value.trim(),
+    source:   document.getElementById('m-source').value,
+    event:    document.getElementById('m-event').value.trim(),
+    interest: document.getElementById('m-interest').value,
+    notes:    document.getElementById('m-notes').value.trim(),
+    type:     'Manual',
+    added:    new Date().toISOString()
+  });
+
+  save();
+  clearManual();
+  showToast('Lead added to queue.');
+  updateTabCount();
+}
+
+function addScanLead() {
+  const first = document.getElementById('s-first').value.trim();
+  const last  = document.getElementById('s-last').value.trim();
+  if (!first && !last) { showToast('Add at least a name.'); return; }
+
+  leads.push({
+    id: Date.now(),
+    first, last,
+    company: document.getElementById('s-company').value.trim(),
+    title:   document.getElementById('s-title').value.trim(),
+    email:   document.getElementById('s-email').value.trim(),
+    phone:   document.getElementById('s-phone').value.trim(),
+    website: document.getElementById('s-url').value.trim(),
+    source:  document.getElementById('s-source').value,
+    event:   document.getElementById('s-event').value.trim(),
+    interest: '',
+    notes:   document.getElementById('s-notes').value.trim(),
+    type:    selectedImgType,
+    added:   new Date().toISOString()
+  });
+
+  save();
+  showToast('Lead added.');
+  updateTabCount();
+  resetScan();
+}
+
+function resetScan() {
+  ['s-first','s-last','s-company','s-title','s-email','s-phone','s-url','s-event','s-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('s-source').value = '';
+  document.getElementById('image-input').value = '';
+  document.getElementById('confirm-thumb').style.display = 'none';
+  document.getElementById('confirm-thumb').src = '';
+  document.getElementById('confirm-fullname').textContent = 'Unknown';
+  document.getElementById('confirm-initials').textContent = '?';
+  document.getElementById('confirm-company-display').textContent = '';
+  document.getElementById('scan-step-2').classList.remove('active');
+  document.getElementById('scan-step-1').classList.add('active');
+  document.getElementById('ai-spinner').classList.remove('active');
+}
+
+// ============================================================
+//  PLATFORM IMPORT
+// ============================================================
+const platformHints = {
+  'LinkedIn':     '<strong style="color:var(--gold-light)">LinkedIn:</strong> My Network > Connections > Manage > Export Connections. Upload connections.csv.',
+  'HiHello':      '<strong style="color:var(--gold-light)">HiHello:</strong> Open your app > Contacts > Export. Choose CSV format.',
+  'Popl':         '<strong style="color:var(--gold-light)">Popl:</strong> Popl Teams dashboard > Leads > Export to CSV.',
+  'Blinq':        '<strong style="color:var(--gold-light)">Blinq:</strong> App > Contacts > top-right export icon > CSV.',
+  'Dot':          '<strong style="color:var(--gold-light)">.dot:</strong> App > Connections > Export > CSV file.',
+  'Generic CSV':  '<strong style="color:var(--gold-light)">Generic CSV:</strong> Any CSV with columns: First, Last, Email, Phone, Company. Column names are flexible.'
+};
+
+function selectPlatform(btn, platform) {
+  document.querySelectorAll('.import-source-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedPlatform = platform;
+  document.getElementById('platform-hint').innerHTML = platformHints[platform] || '';
+  document.getElementById('i-source').value = platform;
+}
+
+document.getElementById('import-file').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    importFileData = ev.target.result;
+    const rowCount = importFileData.split('\n').length - 1;
+    const status = document.getElementById('import-status');
+    status.style.display = 'block';
+    status.textContent = `File loaded: ${file.name} — ${rowCount} rows detected. Click Import to add.`;
+  };
+  reader.readAsText(file);
+});
+
+function processImport() {
+  if (!importFileData) { showToast('Upload a file first.'); return; }
+
+  const source = document.getElementById('i-source').value || selectedPlatform;
+  const event  = document.getElementById('i-event').value.trim();
+
+  const lines = importFileData.trim().split('\n');
+  if (lines.length < 2) { showToast('File appears empty.'); return; }
+
+  const headers = parseCSVRow(lines[0]).map(h => h.toLowerCase().trim()
+    .replace(/[\u0022\u2018\u2019\u201C\u201D]/g,'') // strip quotes
+  );
+
+  const map = {
+    first:   findHeader(headers, ['first name','first','firstname','given name']),
+    last:    findHeader(headers, ['last name','last','lastname','surname','family name']),
+    email:   findHeader(headers, ['email address','email','e-mail']),
+    phone:   findHeader(headers, ['phone','mobile','cell','phone number']),
+    company: findHeader(headers, ['company','organization','company name','employer']),
+    title:   findHeader(headers, ['title','position','job title','role']),
+    website: findHeader(headers, ['website','url','linkedin url','profile url'])
+  };
+
+  let added = 0;
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVRow(lines[i]);
+    if (cols.length < 2) continue;
+    const get = (key) => map[key] !== -1 ? (cols[map[key]] || '').replace(/^"|"$/g,'').trim() : '';
+
+    const first = get('first');
+    const last  = get('last');
+    const email = get('email');
+    if (!first && !last && !email) continue;
+
+    leads.push({
+      id: Date.now() + i,
+      first, last,
+      company: get('company'),
+      title:   get('title'),
+      email,
+      phone:   get('phone'),
+      website: get('website'),
+      source,
+      event,
+      interest: '',
+      notes:   `Imported from ${selectedPlatform}`,
+      type:    selectedPlatform + ' Import',
+      added:   new Date().toISOString()
+    });
+    added++;
+  }
+
+  save();
+  updateTabCount();
+  showToast(`${added} leads imported.`);
+  document.getElementById('import-status').textContent = `${added} leads added to queue successfully.`;
+  importFileData = null;
+  document.getElementById('import-file').value = '';
+}
+
+function findHeader(headers, options) {
+  for (const opt of options) {
+    const idx = headers.findIndex(h => h.includes(opt));
+    if (idx !== -1) return idx;
+  }
+  return -1;
+}
+
+function parseCSVRow(row) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < row.length; i++) {
+    const ch = row[i];
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === ',' && !inQuotes) { result.push(current); current = ''; }
+    else { current += ch; }
+  }
+  result.push(current);
+  return result;
+}
+
+// ============================================================
+//  QUEUE + RENDER
+// ============================================================
+function renderQueue() {
+  const list = document.getElementById('lead-list');
+  const badge = document.getElementById('queue-count-badge');
+  badge.textContent = leads.length + (leads.length === 1 ? ' lead' : ' leads');
+
+  if (leads.length === 0) {
+    list.innerHTML = '<div class="empty-queue"><div class="empty-icon">📋</div>No leads yet. Add your first one.</div>';
+    return;
+  }
+
+  list.innerHTML = leads.map(l => {
+    const name = [l.first, l.last].filter(Boolean).join(' ') || l.email || 'Unknown';
+    const initials = (l.first?.[0] || '') + (l.last?.[0] || '') || '?';
+    const meta = [l.company, l.email].filter(Boolean).join(' · ');
+    const tag = l.source || l.type || '';
+    return `
+      <div class="lead-row">
+        <div class="lead-avatar">${initials.toUpperCase()}</div>
+        <div class="lead-info">
+          <div class="lead-name">${name}</div>
+          <div class="lead-meta">${meta}</div>
+        </div>
+        ${tag ? `<div class="lead-source-tag">${tag}</div>` : ''}
+        <button class="lead-del" onclick="deleteLead(${l.id})" title="Remove">×</button>
+      </div>`;
+  }).join('');
+}
+
+function deleteLead(id) {
+  leads = leads.filter(l => l.id !== id);
+  save();
+  renderQueue();
+  updateTabCount();
+}
+
+function clearQueue() {
+  if (!confirm('Clear all leads? This cannot be undone.')) return;
+  leads = [];
+  save();
+  renderQueue();
+  updateTabCount();
+}
+
+// ============================================================
+//  CSV EXPORT
+// ============================================================
+function exportCSV() {
+  if (leads.length === 0) { showToast('Nothing to export yet.'); return; }
+
+  const headers = ['First Name','Last Name','Company','Title','Email','Phone','Website','Source','Event','Interest','Notes','Type','Date Added'];
+  const rows = leads.map(l => [
+    l.first, l.last, l.company, l.title, l.email, l.phone, l.website,
+    l.source, l.event, l.interest, l.notes, l.type, l.added
+  ].map(v => `"${(v||'').replace(/"/g,'""')}"`));
+
+  const csv = [headers.map(h => `"${h}"`).join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `coaigence_leads_${date}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${leads.length} leads exported.`);
+}
+
+// ============================================================
+//  UTILITIES
+// ============================================================
+function save() { localStorage.setItem('coaigence_leads', JSON.stringify(leads)); }
+
+function clearManual() {
+  ['m-first','m-last','m-company','m-title','m-email','m-phone','m-url','m-event','m-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-source').value = '';
+  document.getElementById('m-interest').value = '';
+}
+
+function updateTabCount() {
+  const tab = document.querySelectorAll('.tab-btn')[3];
+  const count = leads.length;
+  tab.textContent = count > 0 ? `Queue (${count})` : 'Queue';
+  const tc = document.getElementById('tab-count');
+  if(tc) tc.textContent = '';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+
+
+// ============================================================
+//  EVENT DROPDOWN (persistent across sessions)
+// ============================================================
+function getEventOptions() {
+  try { return JSON.parse(localStorage.getItem('coaigence_events') || '[]'); } catch { return []; }
+}
+
+function saveEventOption(val) {
+  val = val.trim();
+  if (!val || val.length < 2) return;
+  const events = getEventOptions();
+  if (!events.includes(val)) {
+    events.unshift(val); // newest first
+    if (events.length > 20) events.pop(); // cap at 20
+    localStorage.setItem('coaigence_events', JSON.stringify(events));
+    refreshEventList();
+  }
+}
+
+function refreshEventList() {
+  const list = document.getElementById('event-list');
+  if (!list) return;
+  const events = getEventOptions();
+  list.innerHTML = events.map(e => '<option value="' + e.replace(/"/g,'&quot;') + '">').join('');
+}
+
+// ============================================================
+//  SETTINGS
+// ============================================================
+function toggleSettings() {
+  const d = document.getElementById('settings-drawer');
+  d.classList.toggle('open');
+}
+
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-')) { showToast('Key should start with sk-'); return; }
+  localStorage.setItem('coaigence_api_key', val);
+  updateKeyStatus();
+  document.getElementById('api-key-input').value = '';
+  showToast('API key saved.');
+  document.getElementById('settings-drawer').classList.remove('open');
+}
+
+function updateKeyStatus() {
+  const s = document.getElementById('key-status');
+  const has = !!localStorage.getItem('coaigence_api_key');
+  s.textContent = has ? 'Key saved. AI extraction ready.' : 'No key saved.';
+  s.className = 'key-status' + (has ? ' set' : '');
+}
+
+// INIT
+updateTabCount();
+updateKeyStatus();
+refreshEventList();
+</script>
+</body>
+</html>
