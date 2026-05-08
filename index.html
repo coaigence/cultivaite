@@ -1329,7 +1329,6 @@
           <option value="10 miles">10 miles</option>
           <option value="25 miles" selected>25 miles</option>
           <option value="50 miles">50 miles</option>
-          <option value="100 miles">100 miles</option>
         </select>
       </div>
       <div class="field">
@@ -2143,7 +2142,7 @@ function buildMapPrompt(listType, state, city, radius, niche, count) {
   if (listType === 'Industry-Specific Businesses') campaignLane = 'AI Readiness / Prospect';
 
   const fields = '{"company":"","first":"","last":"","title":"","email":"","phone":"","website":"","industry":"' + (niche || listType) + '","campaign_lane":"' + campaignLane + '","priority":"High","next_action":"","notes":""}';
-  return 'You are a market research assistant with web search. Find ' + count + ' real ' + listType + ' organizations within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + '\n\nFOR EACH ORGANIZATION YOU FIND:\n1. Search for the organization by name\n2. Visit their actual website\n3. Find and record: main phone number, website URL, executive director or superintendent name, and any publicly listed email\n4. Search their staff directory page specifically for contact details\n\nCRITICAL:\n- Always get the main phone number from their website — it is almost always there\n- Get the website URL\n- Get the top leader name and title\n- Only use emails actually found on their site — leave blank if not found\n- NEVER invent phone numbers or use 555 numbers\n- Real phone + no email is better than fake email + no phone\n\nRespond with ONLY a valid JSON array starting with [ ending with ]. No markdown.\n\nStructure: ' + fields;
+  return 'You are a thorough market research assistant with web search. Find ' + count + ' real ' + listType + ' organizations within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + '\n\nFOR EACH ORGANIZATION — run multiple searches to find real contact details:\n\nSearch 1: "[organization name] phone number contact"\nSearch 2: "[organization name] staff directory"\nSearch 3: "[organization name] superintendent director email" (or relevant title)\nSearch 4: "[organization name] contact us"\n\nUse whichever searches return the best results. Every site is different — adapt your approach.\n\nWHAT TO CAPTURE:\n- Company name and website URL\n- Top leader name and title (superintendent, director, president, owner, etc.)\n- Direct phone number (prefer direct line over main switchboard if both available)\n- Email address if publicly listed anywhere on their site\n\nRULES:\n- NEVER invent phone numbers — only use numbers you found via search\n- NEVER use 555 numbers\n- Leave email blank if not found — do not guess\n- A real phone with no email beats a fake email\n- Fewer accurate records beats many inaccurate ones\n\nAfter researching all organizations, respond with ONLY a valid JSON array starting with [ and ending with ]. No markdown. No explanation.\n\nStructure: ' + fields;
 }
 
 function assignPlaceholders(records, listType, niche) {
