@@ -1335,9 +1335,8 @@
       <div class="field">
         <label>Number of Results</label>
         <select id="map-count">
-          <option value="10">10 records</option>
-          <option value="25" selected>25 records</option>
-          <option value="50">50 records</option>
+          <option value="5">5 records</option>
+          <option value="10" selected>10 records</option>
         </select>
       </div>
       <button class="btn-primary" onclick="buildMarketMap()" id="map-build-btn">Build Market Map</button>
@@ -2127,7 +2126,11 @@ async function buildMarketMap() {
     renderMapResults(mapResults);
 
   } catch(err) {
-    showToast('Could not build map. Try again.');
+    if (err.status === 429 || (err.message && err.message.includes('rate'))) {
+      showToast('Rate limit reached. Wait 60 seconds and try again.');
+    } else {
+      showToast('Could not build map. Try again.');
+    }
     resetMapForm();
   }
 }
@@ -2140,7 +2143,7 @@ function buildMapPrompt(listType, state, city, radius, niche, count) {
   if (listType === 'Industry-Specific Businesses') campaignLane = 'AI Readiness / Prospect';
 
   const fields = '{"company":"","first":"","last":"","title":"","email":"","phone":"","website":"","industry":"' + (niche || listType) + '","campaign_lane":"' + campaignLane + '","priority":"High","next_action":"","notes":""}';
-  return 'You are a market research assistant with web search capability. Use web search to find ' + count + ' real ' + listType + ' organizations within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + '\n\nSTEPS:\n1. Search for real ' + listType + ' organizations in this area\n2. For each organization found, search their website or staff directory to find real contact names and emails\n3. Only include contact details you actually found via web search — never guess or fabricate\n\nCRITICAL RULES:\n- Only real organizations you verified via web search\n- Only real emails found on their actual website or directory\n- Only real phone numbers from their website\n- NEVER invent names, emails, or use 555 numbers\n- Leave fields empty string if not found via search\n- Fewer real records beats many fake ones\n\nAfter researching, respond with ONLY a valid JSON array starting with [ and ending with ]. No markdown. No explanation.\n\nEach object must match exactly: ' + fields;
+  return 'You are a market research assistant with web search. Find ' + count + ' real ' + listType + ' organizations within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + '\n\nFOR EACH ORGANIZATION YOU FIND:\n1. Search for the organization by name\n2. Visit their actual website\n3. Find and record: main phone number, website URL, executive director or superintendent name, and any publicly listed email\n4. Search their staff directory page specifically for contact details\n\nCRITICAL:\n- Always get the main phone number from their website — it is almost always there\n- Get the website URL\n- Get the top leader name and title\n- Only use emails actually found on their site — leave blank if not found\n- NEVER invent phone numbers or use 555 numbers\n- Real phone + no email is better than fake email + no phone\n\nRespond with ONLY a valid JSON array starting with [ ending with ]. No markdown.\n\nStructure: ' + fields;
 }
 
 function assignPlaceholders(records, listType, niche) {
