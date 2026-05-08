@@ -828,7 +828,7 @@
     <div class="brand">coaigence</div>
     <h1>cultiv<span>ai</span>te</h1>
     <div class="sub-tag">a hybrid intelligence company</div>
-    <button class="settings-gear" onclick="toggleSettings()" title="API Settings">&#9881;</button>
+    <button class="settings-gear" onclick="toggleSettings()" title="API Settings" style="display:none">&#9881;</button>
   </header>
 
   <!-- SETTINGS DRAWER -->
@@ -1257,28 +1257,65 @@
           <option value="Industry-Specific Businesses">Industry-Specific Businesses</option>
         </select>
       </div>
+      <div class="field" id="niche-field" style="display:none">
+        <label>Industry / Niche</label>
+        <input type="text" id="map-niche" placeholder="e.g. roofers, dental offices, law firms">
+      </div>
       <div class="row-2">
         <div class="field">
           <label>State</label>
           <select id="map-state">
             <option value="">-- Select --</option>
-            <option>Connecticut</option><option>New York</option><option>New Jersey</option>
-            <option>Massachusetts</option><option>Rhode Island</option><option>Vermont</option>
-            <option>New Hampshire</option><option>Maine</option><option>Pennsylvania</option>
-            <option>Florida</option><option>California</option><option>Texas</option>
-            <option>Illinois</option><option>Ohio</option><option>Georgia</option>
-            <option>North Carolina</option><option>Michigan</option><option>Virginia</option>
-            <option>Washington</option><option>Arizona</option><option>Colorado</option>
-            <option>Minnesota</option><option>Maryland</option><option>Missouri</option>
-            <option>Wisconsin</option><option>Tennessee</option><option>Indiana</option>
-            <option>Alabama</option><option>South Carolina</option><option>Kentucky</option>
-            <option>Oregon</option><option>Oklahoma</option><option>Nevada</option>
-            <option>Utah</option><option>Iowa</option><option>Arkansas</option>
-            <option>Mississippi</option><option>Kansas</option><option>New Mexico</option>
-            <option>Nebraska</option><option>Idaho</option><option>West Virginia</option>
-            <option>Hawaii</option><option>New Hampshire</option><option>Maine</option>
-            <option>Montana</option><option>Delaware</option><option>South Dakota</option>
-            <option>North Dakota</option><option>Alaska</option><option>Wyoming</option>
+            <option>Alabama</option>
+            <option>Alaska</option>
+            <option>Arizona</option>
+            <option>Arkansas</option>
+            <option>California</option>
+            <option>Colorado</option>
+            <option>Connecticut</option>
+            <option>Delaware</option>
+            <option>Florida</option>
+            <option>Georgia</option>
+            <option>Hawaii</option>
+            <option>Idaho</option>
+            <option>Illinois</option>
+            <option>Indiana</option>
+            <option>Iowa</option>
+            <option>Kansas</option>
+            <option>Kentucky</option>
+            <option>Louisiana</option>
+            <option>Maine</option>
+            <option>Maryland</option>
+            <option>Massachusetts</option>
+            <option>Michigan</option>
+            <option>Minnesota</option>
+            <option>Mississippi</option>
+            <option>Missouri</option>
+            <option>Montana</option>
+            <option>Nebraska</option>
+            <option>Nevada</option>
+            <option>New Hampshire</option>
+            <option>New Jersey</option>
+            <option>New Mexico</option>
+            <option>New York</option>
+            <option>North Carolina</option>
+            <option>North Dakota</option>
+            <option>Ohio</option>
+            <option>Oklahoma</option>
+            <option>Oregon</option>
+            <option>Pennsylvania</option>
+            <option>Rhode Island</option>
+            <option>South Carolina</option>
+            <option>South Dakota</option>
+            <option>Tennessee</option>
+            <option>Texas</option>
+            <option>Utah</option>
+            <option>Vermont</option>
+            <option>Virginia</option>
+            <option>Washington</option>
+            <option>West Virginia</option>
+            <option>Wisconsin</option>
+            <option>Wyoming</option>
           </select>
         </div>
         <div class="field">
@@ -1294,10 +1331,6 @@
           <option value="50 miles">50 miles</option>
           <option value="100 miles">100 miles</option>
         </select>
-      </div>
-      <div class="field" id="niche-field" style="display:none">
-        <label>Industry / Niche</label>
-        <input type="text" id="map-niche" placeholder="e.g. roofers, dental offices, law firms">
       </div>
       <div class="field">
         <label>Number of Results</label>
@@ -2105,7 +2138,8 @@ function buildMapPrompt(listType, state, city, radius, niche, count) {
   if (listType === 'Libraries') campaignLane = 'Speaking / Digital Literacy';
   if (listType === 'Industry-Specific Businesses') campaignLane = 'AI Readiness / Prospect';
 
-  return 'You are cultivaite, an AI market intelligence assistant. Generate a list of ' + count + ' real ' + listType + ' prospects located within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + ' Make maximum effort to find real email addresses. If no email is available, leave email as empty string.\n\nReturn ONLY a JSON array, no markdown, no explanation:\n[{\n  "company": "",\n  "first": "",\n  "last": "",\n  "title": "",\n  "email": "",\n  "phone": "",\n  "website": "",\n  "industry": "' + (niche || listType) + '",\n  "campaign_lane": "' + campaignLane + '",\n  "priority": "High|Medium|Low",\n  "next_action": "",\n  "notes": ""\n}]\n\nRules: Do not invent personal emails. Leave email empty if not publicly available. Phone and website are ok to include if publicly listed. Priority should reflect how strong an outreach opportunity this is.';
+  const fields = '{"company":"","first":"","last":"","title":"","email":"","phone":"","website":"","industry":"' + (niche || listType) + '","campaign_lane":"' + campaignLane + '","priority":"High","next_action":"","notes":""}';
+  return 'Generate a JSON array of ' + count + ' ' + listType + ' prospects within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + ' IMPORTANT: Respond with ONLY a valid JSON array. Start your response with [ and end with ]. No text before or after. No markdown. No code blocks. Each object must match this exact structure: ' + fields;
 }
 
 function assignPlaceholders(records, listType, niche) {
