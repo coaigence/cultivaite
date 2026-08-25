@@ -1468,7 +1468,8 @@ async function extractFromImage(base64Data) {
   const apiKey = localStorage.getItem('coaigence_api_key') || '';
   if (!apiKey) {
     showToast('Add your API key in settings first.');
-    document.getElementById('settings-drawer').classList.add('open');
+    // proxy handles API — no key needed
+    // document.getElementById('settings-drawer').classList.add('open');
     document.getElementById('scan-step-2').classList.remove('active');
     document.getElementById('scan-step-1').classList.add('active');
     document.getElementById('ai-spinner').classList.remove('active');
@@ -2026,9 +2027,12 @@ function saveApiKey() {
 
 function updateKeyStatus() {
   const s = document.getElementById('key-status');
+  if (!s) return;
   const has = !!localStorage.getItem('coaigence_api_key');
   s.textContent = has ? 'Key saved. AI extraction ready.' : 'No key saved.';
   s.className = 'key-status' + (has ? ' set' : '');
+  // Never open the drawer automatically — proxy handles AI
+  document.getElementById('settings-drawer').style.display = 'none';
 }
 
 
