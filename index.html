@@ -1466,22 +1466,32 @@ async function extractFromImage(base64Data) {
   let aiNote = '';
 
   const apiKey = localStorage.getItem('coaigence_api_key') || '';
-  if (!apiKey) {
-    showToast('Add your API key in settings first.');
-    // proxy handles API — no key needed
-    // document.getElementById('settings-drawer').classList.add('open');
-    document.getElementById('scan-step-2').classList.remove('active');
-    document.getElementById('scan-step-1').classList.add('active');
-    document.getElementById('ai-spinner').classList.remove('active');
-    return;
-  }
+  const useProxy = PROXY_URL && PROXY_URL !== 'YOUR_PROXY_URL_HERE';
 
   // 8-second timeout — if AI is slow, drop straight to manual fill
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    let response;
+    if (useProxy) {
+      response = await fetch(PROXY_URL + '/extract', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64, mediaType })
+      });
+      clearTimeout(timeout);
+      if (!response.ok) { aiNote = 'AI busy. Fill in below.'; }
+      else {
+        const data = await response.json();
+        parsed = data.result || {};
+      }
+      showConfirmCard(parsed, base64Data, aiNote);
+      return;
+    }
+
+    response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       signal: controller.signal,
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
