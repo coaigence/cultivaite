@@ -828,19 +828,7 @@
     <div class="brand">coaigence</div>
     <h1>cultiv<span>ai</span>te</h1>
     <div class="sub-tag">a hybrid intelligence company</div>
-    <button class="settings-gear" onclick="toggleSettings()" title="API Settings" style="display:none">&#9881;</button>
   </header>
-
-  <!-- SETTINGS DRAWER -->
-  <div class="settings-drawer" id="settings-drawer" style="display:none">
-    <div class="card-label" style="margin-bottom:10px">AI Extraction Key</div>
-    <p style="font-size:11px;color:rgba(250,246,239,0.45);line-height:1.6;letter-spacing:0.05em;">Only needed if a proxy server is not configured. Your key is saved in this browser only and never shared.</p>
-    <div class="api-key-row">
-      <input type="password" id="api-key-input" placeholder="sk-ant-...">
-      <button class="btn-save-key" onclick="saveApiKey()">Save</button>
-    </div>
-    <div class="key-status" id="key-status">No key saved.</div>
-  </div>
 
   <!-- TAB NAV -->
   <div class="tab-nav">
@@ -1947,15 +1935,6 @@ async function parseVoiceWithAI(transcript, panel, btn) {
   const apiKey = localStorage.getItem('coaigence_api_key') || '';
   const prefix = panel === 'manual' ? 'm' : 's';
 
-  if (!apiKey) {
-    // No AI — just dump into notes
-    const notesEl = document.getElementById(prefix + '-notes');
-    if (notesEl) notesEl.value = (notesEl.value ? notesEl.value + ' ' : '') + transcript;
-    resetMicBtn(btn);
-    showToast('No API key — added to notes.');
-    return;
-  }
-
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -2016,35 +1995,6 @@ async function parseVoiceWithAI(transcript, panel, btn) {
 
   resetMicBtn(btn);
 }
-
-// ============================================================
-//  SETTINGS
-// ============================================================
-function toggleSettings() {
-  const d = document.getElementById('settings-drawer');
-  d.classList.toggle('open');
-}
-
-function saveApiKey() {
-  const val = document.getElementById('api-key-input').value.trim();
-  if (!val.startsWith('sk-')) { showToast('Key should start with sk-'); return; }
-  localStorage.setItem('coaigence_api_key', val);
-  updateKeyStatus();
-  document.getElementById('api-key-input').value = '';
-  showToast('API key saved.');
-  document.getElementById('settings-drawer').classList.remove('open');
-}
-
-function updateKeyStatus() {
-  const s = document.getElementById('key-status');
-  if (!s) return;
-  const has = !!localStorage.getItem('coaigence_api_key');
-  s.textContent = has ? 'Key saved. AI extraction ready.' : 'No key saved.';
-  s.className = 'key-status' + (has ? ' set' : '');
-  // Never open the drawer automatically — proxy handles AI
-  document.getElementById('settings-drawer').style.display = 'none';
-}
-
 
 // ============================================================
 //  MODAL CONTROLS
@@ -2120,7 +2070,6 @@ async function buildMarketMap() {
       parsed = data.result || [];
     } else {
       const apiKey = localStorage.getItem('coaigence_api_key') || '';
-      if (!apiKey) { showToast('No API key found.'); resetMapForm(); return; }
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
@@ -2260,7 +2209,6 @@ function resetMapForm() {
 
 // INIT
 updateTabCount();
-updateKeyStatus();
 refreshEventList();
 </script>
 </body>
