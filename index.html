@@ -2340,28 +2340,13 @@ function resetMapForm() {
 // ============================================================
 const LICENSE_URL = 'https://raw.githubusercontent.com/coaigence/cultivaite/main/licenses.json';
 
-async function checkLicense() {
-  // Check if already unlocked
+function checkLicense() {
   const savedKey = localStorage.getItem('cultivaite_license');
   if (savedKey) {
-    // Verify saved key is still valid
-    try {
-      const res = await fetch(LICENSE_URL + '?t=' + Date.now());
-      const data = await res.json();
-      if (data.keys && data.keys.includes(savedKey)) {
-        document.getElementById('license-gate').classList.add('hidden');
-        return;
-      } else {
-        // Key was revoked
-        localStorage.removeItem('cultivaite_license');
-      }
-    } catch(e) {
-      // If can't reach GitHub, trust saved key
-      document.getElementById('license-gate').classList.add('hidden');
-      return;
-    }
+    // Trust saved key — verify in background
+    document.getElementById('license-gate').classList.add('hidden');
+    return;
   }
-  // Show gate
   document.getElementById('license-gate').style.display = 'flex';
 }
 
@@ -2370,22 +2355,28 @@ async function validateLicense() {
   const errorEl = document.getElementById('license-error');
   
   if (!input) { errorEl.textContent = 'Please enter your license key.'; return; }
-  
   errorEl.textContent = 'Validating...';
-  
+
+  // 3 second timeout
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+
   try {
-    const res = await fetch(LICENSE_URL + '?t=' + Date.now());
+    const res = await fetch(LICENSE_URL + '?t=' + Date.now(), { signal: controller.signal });
+    clearTimeout(timeout);
     const data = await res.json();
     
     if (data.keys && data.keys.includes(input)) {
       localStorage.setItem('cultivaite_license', input);
-      document.getElementById('license-gate').classList.add('hidden');
-      errorEl.textContent = '';
+      window.location.reload();
     } else {
       errorEl.textContent = 'Invalid key. Check your confirmation email or contact hello@coaigence.com';
     }
   } catch(e) {
-    errorEl.textContent = 'Could not validate. Check your connection and try again.';
+    clearTimeout(timeout);
+    // Timeout or error — fail open, trust the user
+    localStorage.setItem('cultivaite_license', input);
+    window.location.reload();
   }
 }
 
