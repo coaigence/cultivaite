@@ -3,7 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>coaigence | cultivaite</title>
+<title>cultivaite | coaigence</title>
+
+<!-- Favicon + App Icon -->
+<link rel="icon" type="image/png" href="cultivaite-icon.jpg">
+<link rel="apple-touch-icon" href="cultivaite-icon.jpg">
+
+<!-- PWA Meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="cultivaite">
+<meta name="theme-color" content="#271540">
+
+<!-- Social / Open Graph -->
+<meta property="og:title" content="cultivaite by coaigence">
+<meta property="og:description" content="Your potential network, organized.">
+<meta property="og:image" content="cultivaite-icon.jpg">
+<meta property="og:url" content="https://cultivaite.coaigence.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -891,16 +907,19 @@
           <label>Source</label>
           <select id="m-source">
             <option value="">-- Select --</option>
-            <option>Ridgefield Chamber</option>
-            <option>Waterbury Chamber</option>
-            <option>Women's Forum</option>
             <option>Networking Event</option>
-            <option>Workshop</option>
+            <option>Chamber of Commerce</option>
+            <option>Conference / Expo</option>
+            <option>Workshop / Training</option>
             <option>Referral</option>
             <option>Cold Outreach</option>
             <option>Social Media</option>
             <option>Road Signage</option>
             <option>Vehicle Wrap</option>
+            <option>Storefront</option>
+            <option>Business Card</option>
+            <option>Market Map</option>
+            <option>Import / Upload</option>
             <option>Other</option>
           </select>
         </div>
@@ -1036,15 +1055,20 @@
             <div class="confirm-field-label">Source</div>
             <select id="s-source" style="width:100%;padding:8px 11px;background:rgba(255,255,255,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:7px;color:var(--cream);font-family:'Montserrat',sans-serif;font-size:12px;outline:none;">
               <option value="">-- Select --</option>
-              <option>Ridgefield Chamber</option>
-              <option>Waterbury Chamber</option>
-              <option>Women's Forum</option>
-              <option>Networking Event</option>
-              <option>Workshop</option>
-              <option>Referral</option>
-              <option>Road Signage</option>
-              <option>Vehicle Wrap</option>
-              <option>Other</option>
+            <option>Networking Event</option>
+            <option>Chamber of Commerce</option>
+            <option>Conference / Expo</option>
+            <option>Workshop / Training</option>
+            <option>Referral</option>
+            <option>Cold Outreach</option>
+            <option>Social Media</option>
+            <option>Road Signage</option>
+            <option>Vehicle Wrap</option>
+            <option>Storefront</option>
+            <option>Business Card</option>
+            <option>Market Map</option>
+            <option>Import / Upload</option>
+            <option>Other</option>
             </select>
           </div>
           <div class="confirm-field">
@@ -1193,7 +1217,7 @@
     <div class="brand" style="text-align:center;margin-bottom:8px">coaigence</div>
     <h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;text-align:center;color:var(--cream);margin-bottom:4px">cultiv<span style="color:var(--gold);font-style:italic">ai</span>te</h2>
     <p style="text-align:center;font-size:11px;color:rgba(250,246,239,0.5);letter-spacing:0.15em;margin-bottom:18px">Your potential network, organized.</p>
-    <img src="qrcode-ai-87c9eb89-c976-4b89-a90b-7e1d2cf0d73c.png" alt="Get cultivaite" style="width:100%;max-width:280px;display:block;margin:0 auto;border-radius:12px;">
+    <img src="cultivaite-icon.jpg" alt="Get cultivaite" style="width:100%;max-width:280px;display:block;margin:0 auto;border-radius:12px;">
     <p style="text-align:center;font-size:10px;color:rgba(250,246,239,0.35);letter-spacing:0.15em;margin-top:14px;text-transform:uppercase">Scan to purchase · $147</p>
   </div>
 </div>
@@ -2105,7 +2129,7 @@ function buildMapPrompt(listType, state, city, radius, niche, count) {
   if (listType === 'Industry-Specific Businesses') campaignLane = 'AI Readiness / Prospect';
 
   const fields = '{"company":"","first":"","last":"","title":"","email":"","phone":"","website":"","industry":"' + (niche || listType) + '","campaign_lane":"' + campaignLane + '","priority":"High","next_action":"","notes":""}';
-  return 'You are a thorough market research assistant with web search. Find ' + count + ' real ' + listType + ' organizations within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + '\n\nFOR EACH ORGANIZATION — run multiple searches to find real contact details:\n\nSearch 1: "[organization name] phone number contact"\nSearch 2: "[organization name] staff directory"\nSearch 3: "[organization name] superintendent director email" (or relevant title)\nSearch 4: "[organization name] contact us"\nSearch 5: Visit the staff directory page URL directly and look for mailto: email links in the page HTML\n\nUse whichever searches return the best results. Every site is different — adapt your approach. When you visit a staff directory page, look carefully for mailto: links — these contain the actual email addresses even if they appear as clickable names.\n\nWHAT TO CAPTURE:\n- Company name and website URL\n- Top leader name and title (superintendent, director, president, owner, etc.)\n- Phone number from their website\n- Email address — check mailto: links on staff directory pages\n\nRULES:\n- NEVER invent phone numbers — only use numbers you found via search\n- NEVER use 555 numbers\n- Leave email blank if not found — do not guess\n- A real phone with no email beats a fake email\n- Fewer accurate records beats many inaccurate ones\n\nAfter researching all organizations, respond with ONLY a valid JSON array starting with [ and ending with ]. No markdown. No explanation.\n\nStructure: ' + fields;
+  return 'You are a thorough market research assistant. Use web search to find ' + count + ' real ' + listType + ' organizations within ' + radius + ' of ' + city + ', ' + state + '.' + nicheText + '\n\nFOR EACH ORGANIZATION follow these exact steps:\n\nStep 1: Search the organization name + city to confirm it exists and find their website URL\nStep 2: Fetch their website homepage — read it to get their main phone number\nStep 3: Fetch their staff directory page or contact page — READ THE FULL PAGE CONTENT and extract any email addresses you find in mailto: links or written as text on the page\nStep 4: If step 3 finds no email, search \"[org name] [leader title] email [city]\" and fetch those results\n\nIMPORTANT: When you fetch a webpage, you can see mailto: links in the HTML like <a href=\"mailto:someone@domain.org\">. Extract that email address. This is how real emails appear on staff directory pages.\n\nSTRICT RULES:\n- NEVER construct or guess an email — only use emails you actually found on a webpage\n- Leave email as empty string if not found\n- NEVER use 555 phone numbers\n- Real data only — fewer accurate records beats many fake ones\n\nAfter researching, respond with ONLY a valid JSON array starting with [ and ending with ]. No markdown.\n\nStructure: ' + fields;
 }
 
 function assignPlaceholders(records, listType, niche) {
