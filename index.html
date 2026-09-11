@@ -834,9 +834,112 @@
   .map-tag.action { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: var(--gold-light); }
   .map-tag.priority-high { background: rgba(76,175,122,0.15); border: 1px solid rgba(76,175,122,0.3); color: #4CAF7A; }
   .map-tag.priority-mid { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2); color: var(--gold); }
+
+  /* LICENSE GATE */
+  .license-gate {
+    position: fixed;
+    inset: 0;
+    background: var(--violet-dark);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .license-gate.hidden { display: none; }
+  .license-gate .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .license-gate h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+  .license-gate h1 span { color: var(--gold); font-style: italic; }
+  .license-gate .tagline {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: rgba(250,246,239,0.4);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+  .license-input-wrap {
+    width: 100%;
+    max-width: 360px;
+  }
+  .license-label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(250,246,239,0.5);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .license-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 10px;
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    text-align: center;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .license-input:focus { border-color: var(--gold); }
+  .license-error {
+    font-size: 11px;
+    color: #C94C4C;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    min-height: 16px;
+  }
+  .license-footer {
+    margin-top: 32px;
+    font-size: 10px;
+    color: rgba(250,246,239,0.25);
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+  }
+  .license-footer a {
+    color: rgba(201,168,76,0.5);
+    text-decoration: none;
+  }
 </style>
 </head>
 <body>
+
+
+<!-- LICENSE GATE -->
+<div class="license-gate" id="license-gate">
+  <img src="cultivaite-icon.jpg" alt="cultivaite" style="width:80px;height:80px;object-fit:cover;border-radius:20px;margin-bottom:20px;border:1px solid rgba(201,168,76,0.3);">
+  <div class="brand">coaigence</div>
+  <h1>cultiv<span>ai</span>te</h1>
+  <div class="tagline">Your potential network, organized.</div>
+  <div class="license-input-wrap">
+    <label class="license-label">Enter your license key</label>
+    <input type="text" class="license-input" id="license-input" placeholder="CULT-XXXX-XXXX" maxlength="14">
+    <div class="license-error" id="license-error"></div>
+    <button class="btn-primary" onclick="validateLicense()">Unlock cultivaite</button>
+  </div>
+  <div class="license-footer">
+    Purchased cultivaite? Check your confirmation email for your license key.<br>
+    Need help? <a href="mailto:hello@coaigence.com">hello@coaigence.com</a>
+  </div>
+</div>
 
 <div class="app-wrap">
 
@@ -2231,7 +2334,80 @@ function resetMapForm() {
   mapResults = [];
 }
 
+
+// ============================================================
+//  LICENSE KEY SYSTEM
+// ============================================================
+const LICENSE_URL = 'https://raw.githubusercontent.com/coaigence/cultivaite/main/licenses.json';
+
+async function checkLicense() {
+  // Check if already unlocked
+  const savedKey = localStorage.getItem('cultivaite_license');
+  if (savedKey) {
+    // Verify saved key is still valid
+    try {
+      const res = await fetch(LICENSE_URL + '?t=' + Date.now());
+      const data = await res.json();
+      if (data.keys && data.keys.includes(savedKey)) {
+        document.getElementById('license-gate').classList.add('hidden');
+        return;
+      } else {
+        // Key was revoked
+        localStorage.removeItem('cultivaite_license');
+      }
+    } catch(e) {
+      // If can't reach GitHub, trust saved key
+      document.getElementById('license-gate').classList.add('hidden');
+      return;
+    }
+  }
+  // Show gate
+  document.getElementById('license-gate').style.display = 'flex';
+}
+
+async function validateLicense() {
+  const input = document.getElementById('license-input').value.trim().toUpperCase();
+  const errorEl = document.getElementById('license-error');
+  
+  if (!input) { errorEl.textContent = 'Please enter your license key.'; return; }
+  
+  errorEl.textContent = 'Validating...';
+  
+  try {
+    const res = await fetch(LICENSE_URL + '?t=' + Date.now());
+    const data = await res.json();
+    
+    if (data.keys && data.keys.includes(input)) {
+      localStorage.setItem('cultivaite_license', input);
+      document.getElementById('license-gate').classList.add('hidden');
+      errorEl.textContent = '';
+    } else {
+      errorEl.textContent = 'Invalid key. Check your confirmation email or contact hello@coaigence.com';
+    }
+  } catch(e) {
+    errorEl.textContent = 'Could not validate. Check your connection and try again.';
+  }
+}
+
+// Allow Enter key to submit
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('license-input');
+  if (input) {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') validateLicense();
+    });
+    // Auto-format as they type: CULT-XXXX-XXXX
+    input.addEventListener('input', function() {
+      let v = this.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+      if (v.length > 4) v = v.slice(0,4) + '-' + v.slice(4);
+      if (v.length > 9) v = v.slice(0,9) + '-' + v.slice(9);
+      this.value = v.slice(0,14);
+    });
+  }
+});
+
 // INIT
+checkLicense();
 updateTabCount();
 refreshEventList();
 </script>
