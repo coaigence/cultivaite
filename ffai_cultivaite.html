@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D1B2A">
+<title>cultivaite — Freedom Forge AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+<style>
+:root {
+  --navy: #0D1B2A;
+  --navy-dark: #070E14;
+  --navy-mid: #1A2E45;
+  --navy-light: #243B55;
+  --silver: #A8B8C8;
+  --silver-light: #C8D8E8;
+  --silver-bright: #E8F0F8;
+  --steel: #4A6080;
+  --steel-light: #6A80A0;
+  --white: #FFFFFF;
+  --off-white: #F4F7FA;
+  --text-primary: #E8F0F8;
+  --text-secondary: #A8B8C8;
+  --text-muted: #6A80A0;
+  --success: #4CAF82;
+  --error: #E05555;
+  --warn: #E0A020;
+  --brand-primary: var(--navy);
+  --brand-accent: var(--silver);
+  --brand-name: "Freedom Forge AI";
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--navy-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BRAND CONFIG SCREEN ── */
+#brand-config-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(160deg, #070E14 0%, #0D1B2A 50%, #1A2E45 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+#brand-config-screen.hidden { display: none; }
+.brand-config-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,184,200,0.2);
+  border-radius: 20px;
+  padding: 36px 32px;
+  max-width: 520px; width: 100%;
+  max-height: 90vh; overflow-y: auto;
+}
+.brand-config-card h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 300;
+  color: var(--silver-light);
+  margin-bottom: 6px;
+}
+.brand-config-card .subtitle {
+  font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 28px;
+}
+.brand-field { margin-bottom: 18px; }
+.brand-field label {
+  display: block; font-size: 0.7rem; font-weight: 500;
+  color: var(--silver); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.brand-field input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(168,184,200,0.25);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.brand-field input:focus { border-color: var(--silver); }
+.brand-field input[type="color"] {
+  padding: 4px 8px; height: 42px; cursor: pointer;
+}
+.brand-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.brand-save-btn {
+  width: 100%; margin-top: 24px;
+  background: linear-gradient(135deg, var(--steel) 0%, var(--navy-light) 100%);
+  color: var(--silver-bright); border: 1px solid rgba(168,184,200,0.3);
+  border-radius: 10px; padding: 13px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.brand-save-btn:hover { background: linear-gradient(135deg, #5A7090 0%, #2A4060 100%); }
+.brand-skip { text-align: center; margin-top: 14px; }
+.brand-skip a {
+  font-size: 0.72rem; color: var(--text-muted);
+  text-decoration: underline; cursor: pointer;
+}
+
+/* ── LICENSE SCREEN ── */
+#license-screen {
+  position: fixed; inset: 0; z-index: 9998;
+  background: linear-gradient(160deg, #070E14 0%, #0D1B2A 50%, #1A2E45 100%);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+#license-screen.hidden { display: none; }
+.license-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,184,200,0.2);
+  border-radius: 20px; padding: 40px 32px;
+  max-width: 420px; width: 100%; text-align: center;
+}
+.license-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.6rem; font-weight: 300;
+  color: var(--silver-light); letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.license-brand {
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--steel-light);
+  margin-bottom: 32px;
+}
+.license-card p {
+  font-size: 0.8rem; color: var(--text-secondary);
+  margin-bottom: 20px; line-height: 1.6;
+}
+#license-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(168,184,200,0.25);
+  border-radius: 10px; padding: 14px 16px;
+  color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif; font-size: 0.9rem;
+  text-align: center; letter-spacing: 0.1em;
+  outline: none; margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+#license-input:focus { border-color: var(--silver); }
+#license-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--steel) 0%, var(--navy-light) 100%);
+  color: var(--silver-bright);
+  border: 1px solid rgba(168,184,200,0.3);
+  border-radius: 10px; padding: 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+#license-btn:hover { background: linear-gradient(135deg, #5A7090 0%, #2A4060 100%); }
+#license-error {
+  font-size: 0.78rem; color: var(--error);
+  margin-top: 12px; min-height: 20px;
+}
+.license-bypass {
+  margin-top: 20px; font-size: 0.7rem; color: var(--text-muted);
+}
+.license-bypass a { color: var(--silver); cursor: pointer; text-decoration: underline; }
+
+/* ── MAIN APP ── */
+#app { display: none; min-height: 100vh; }
+#app.visible { display: block; }
+
+/* ── HEADER ── */
+.app-header {
+  background: linear-gradient(180deg, var(--navy-dark) 0%, var(--navy) 100%);
+  border-bottom: 1px solid rgba(168,184,200,0.12);
+  padding: 16px 20px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-logo-img { height: 32px; width: auto; object-fit: contain; }
+.header-logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 300;
+  color: var(--silver-light); letter-spacing: 0.04em;
+}
+.header-logo-text span { color: var(--silver); font-style: italic; }
+.header-sub {
+  font-size: 0.6rem; font-weight: 500; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--steel-light);
+  margin-top: 2px;
+}
+.header-right { display: flex; align-items: center; gap: 12px; }
+.header-icon-btn {
+  background: none; border: none; color: var(--silver); cursor: pointer;
+  padding: 6px; border-radius: 8px; transition: background 0.2s;
+  display: flex; align-items: center;
+}
+.header-icon-btn:hover { background: rgba(168,184,200,0.1); }
+.header-icon-btn svg { width: 20px; height: 20px; }
+
+/* ── TABS ── */
+.tab-bar {
+  display: flex;
+  background: var(--navy-dark);
+  border-bottom: 1px solid rgba(168,184,200,0.1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 0 0 auto;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 12px 18px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.tab-btn.active {
+  color: var(--silver-light);
+  border-bottom-color: var(--silver);
+}
+.tab-btn:hover:not(.active) { color: var(--text-secondary); }
+
+/* ── PANELS ── */
+.panel { display: none; padding: 20px; }
+.panel.active { display: block; }
+
+/* ── SECTION HEADERS ── */
+.section-header {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem; font-weight: 300;
+  color: var(--silver-light); margin-bottom: 4px;
+}
+.section-sub {
+  font-size: 0.68rem; color: var(--text-muted);
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+}
+
+/* ── CARDS ── */
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,184,200,0.12);
+  border-radius: 14px; padding: 18px; margin-bottom: 14px;
+}
+.card-title {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--silver); margin-bottom: 12px;
+}
+
+/* ── FORM FIELDS ── */
+.field { margin-bottom: 14px; }
+.field label {
+  display: block; font-size: 0.68rem; font-weight: 500;
+  color: var(--silver); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(168,184,200,0.2);
+  border-radius: 8px; padding: 10px 12px;
+  color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif; font-size: 0.83rem;
+  outline: none; transition: border-color 0.2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--silver);
+}
+.field select option { background: var(--navy); color: var(--text-primary); }
+.field textarea { resize: vertical; min-height: 70px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  background: linear-gradient(135deg, var(--steel) 0%, var(--navy-light) 100%);
+  color: var(--silver-bright);
+  border: 1px solid rgba(168,184,200,0.3);
+  border-radius: 10px; padding: 12px 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s; width: 100%;
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5A7090 0%, #2A4060 100%);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary {
+  background: rgba(168,184,200,0.08);
+  border: 1px solid rgba(168,184,200,0.2);
+  color: var(--silver); border-radius: 10px;
+  padding: 10px 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.btn-secondary:hover { background: rgba(168,184,200,0.14); }
+.btn-icon {
+  display: flex; align-items: center; gap: 7px;
+  justify-content: center;
+}
+.btn-icon svg { width: 16px; height: 16px; }
+
+/* ── CAPTURE / SCAN ── */
+.capture-area {
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(168,184,200,0.25);
+  border-radius: 12px; padding: 24px;
+  text-align: center; margin-bottom: 14px;
+  position: relative;
+}
+.capture-preview {
+  width: 100%; max-height: 280px; object-fit: contain;
+  border-radius: 8px; display: none; margin-bottom: 10px;
+}
+.capture-preview.visible { display: block; }
+#qr-video-container {
+  display: none; position: relative; width: 100%;
+}
+#qr-video-container.visible { display: block; }
+#qr-video {
+  width: 100%; border-radius: 8px;
+  max-height: 260px; object-fit: cover;
+}
+#qr-canvas { display: none; }
+.qr-overlay {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px; height: 150px;
+  border: 2px solid var(--silver);
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(7,14,20,0.5);
+  pointer-events: none;
+}
+.qr-overlay::before, .qr-overlay::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border-color: var(--silver-bright);
+  border-style: solid;
+}
+.qr-overlay::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+.qr-overlay::after { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+.scan-status {
+  font-size: 0.75rem; color: var(--text-muted);
+  margin-top: 8px; min-height: 18px;
+}
+.scan-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+/* ── AI RESPONSE ── */
+.ai-box {
+  background: rgba(74,96,128,0.15);
+  border: 1px solid rgba(168,184,200,0.2);
+  border-radius: 12px; padding: 16px;
+  margin-top: 14px; display: none;
+}
+.ai-box.visible { display: block; }
+.ai-box-label {
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--silver); margin-bottom: 10px;
+}
+.ai-box-content {
+  font-size: 0.82rem; line-height: 1.65;
+  color: var(--text-secondary); white-space: pre-wrap;
+}
+.ai-thinking { display: flex; align-items: center; gap: 8px; }
+.ai-thinking span {
+  font-size: 0.78rem; color: var(--text-muted); font-style: italic;
+}
+.dot-pulse { display: flex; gap: 4px; }
+.dot-pulse div {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--silver); animation: dp 1.2s ease-in-out infinite;
+}
+.dot-pulse div:nth-child(2) { animation-delay: 0.2s; }
+.dot-pulse div:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dp { 0%,80%,100%{opacity:0.3;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+/* ── LEADS LIST ── */
+.lead-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,184,200,0.1);
+  border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: all 0.15s;
+}
+.lead-item:hover { border-color: rgba(168,184,200,0.25); }
+.lead-item-name {
+  font-weight: 600; font-size: 0.9rem; color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.lead-item-meta {
+  font-size: 0.72rem; color: var(--text-muted);
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.lead-badge {
+  display: inline-block;
+  font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 20px;
+  background: rgba(74,96,128,0.3); color: var(--silver);
+  border: 1px solid rgba(168,184,200,0.2);
+}
+.lead-badge.hot { background: rgba(224,85,85,0.2); color: #E08080; border-color: rgba(224,85,85,0.3); }
+.lead-badge.warm { background: rgba(224,160,32,0.2); color: #E0C060; border-color: rgba(224,160,32,0.3); }
+.lead-badge.cold { background: rgba(74,96,128,0.2); color: var(--steel-light); border-color: rgba(74,96,128,0.3); }
+
+.lead-actions { display: flex; gap: 8px; margin-top: 10px; }
+.lead-actions .btn-secondary { font-size: 0.7rem; padding: 7px 12px; }
+
+/* ── MARKET MAP ── */
+.map-query-area { display: flex; gap: 10px; margin-bottom: 16px; }
+.map-query-area input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(168,184,200,0.2);
+  border-radius: 8px; padding: 10px 14px;
+  color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif; font-size: 0.83rem;
+  outline: none; transition: border-color 0.2s;
+}
+.map-query-area input:focus { border-color: var(--silver); }
+.map-query-area button {
+  background: linear-gradient(135deg, var(--steel) 0%, var(--navy-light) 100%);
+  color: var(--silver-bright);
+  border: 1px solid rgba(168,184,200,0.3);
+  border-radius: 8px; padding: 10px 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.map-query-area button:hover:not(:disabled) { background: linear-gradient(135deg, #5A7090 0%, #2A4060 100%); }
+.map-query-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(7,14,20,0.88);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--navy);
+  border: 1px solid rgba(168,184,200,0.2);
+  border-radius: 18px; padding: 28px 24px;
+  max-width: 440px; width: 100%;
+  max-height: 85vh; overflow-y: auto;
+  transform: translateY(20px); transition: transform 0.25s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem; font-weight: 300; color: var(--silver-light);
+}
+.modal-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1.4rem; cursor: pointer; padding: 2px 6px;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text-primary); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(13,27,42,0.95);
+  border: 1px solid rgba(168,184,200,0.3);
+  border-radius: 10px; padding: 11px 20px;
+  font-size: 0.8rem; color: var(--text-primary);
+  z-index: 9999; transition: transform 0.3s ease;
+  max-width: 320px; text-align: center;
+  backdrop-filter: blur(10px);
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,184,200,0.1);
+  border-radius: 12px; padding: 14px 12px; text-align: center;
+}
+.stat-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 300; color: var(--silver-light);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.62rem; color: var(--text-muted);
+  letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px;
+}
+
+/* ── VOICE STATUS ── */
+.voice-status {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.78rem; color: var(--text-muted); margin-top: 10px;
+  min-height: 24px;
+}
+.voice-indicator {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--steel);
+}
+.voice-indicator.active {
+  background: var(--error);
+  animation: pulse-red 1s ease-in-out infinite;
+}
+@keyframes pulse-red { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── FOOTER ── */
+.app-footer {
+  background: var(--navy-dark);
+  border-top: 1px solid rgba(168,184,200,0.08);
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px; margin-top: 20px;
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem; color: var(--text-muted);
+}
+.footer-links { display: flex; gap: 14px; flex-wrap: wrap; }
+.footer-links a {
+  font-size: 0.68rem; color: var(--text-muted); text-decoration: none;
+  letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--silver); }
+
+/* ── QR MODAL ── */
+.qr-get-img { width: 180px; margin: 0 auto 16px; display: block; }
+.qr-get-text { font-size: 0.78rem; color: var(--text-secondary); text-align: center; line-height: 1.6; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 40px 20px;
+  color: var(--text-muted);
+}
+.empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state p { font-size: 0.82rem; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(168,184,200,0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(168,184,200,0.35); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 360px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .scan-btn-row { grid-template-columns: 1fr; }
+  .brand-row { grid-template-columns: 1fr; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .field select option { background: #0D1B2A; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     BRAND CONFIG SCREEN (first launch)
+═══════════════════════════════════════════════ -->
+<div id="brand-config-screen">
+  <div class="brand-config-card">
+    <h1>White-Label Setup</h1>
+    <p class="subtitle">Configure your brand — saved to this device</p>
+
+    <div class="brand-field">
+      <label>Brand Name</label>
+      <input type="text" id="cfg-brand-name" placeholder="Freedom Forge AI">
+    </div>
+    <div class="brand-field">
+      <label>App Tagline / Sub-title</label>
+      <input type="text" id="cfg-app-title" placeholder="AI-Powered Lead Intelligence">
+    </div>
+    <div class="brand-field">
+      <label>Logo URL <span style="font-size:0.65rem;color:var(--text-muted)">(leave blank to use text)</span></label>
+      <input type="url" id="cfg-logo-url" placeholder="https://...">
+    </div>
+    <div class="brand-row">
+      <div class="brand-field">
+        <label>Primary Color</label>
+        <input type="color" id="cfg-primary-color" value="#0D1B2A">
+      </div>
+      <div class="brand-field">
+        <label>Accent Color</label>
+        <input type="color" id="cfg-accent-color" value="#A8B8C8">
+      </div>
+    </div>
+    <div class="brand-field">
+      <label>Support URL</label>
+      <input type="url" id="cfg-support-url" placeholder="https://go.freedomforgeai.com/ffai_assistance">
+    </div>
+    <div class="brand-field">
+      <label>Buy / Store URL</label>
+      <input type="url" id="cfg-buy-url" placeholder="https://go.freedomforgeai.com/store-product-detail/product/cultivaite">
+    </div>
+    <div class="brand-field">
+      <label>License Keys URL <span style="font-size:0.65rem;color:var(--text-muted)">(GitHub raw JSON)</span></label>
+      <input type="url" id="cfg-license-url" placeholder="https://raw.githubusercontent.com/...">
+    </div>
+
+    <button class="brand-save-btn" onclick="saveBrandConfig()">Save & Launch cultivaite</button>
+    <div class="brand-skip">
+      <a onclick="skipBrandConfig()">Use Freedom Forge AI defaults →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     LICENSE SCREEN
+═══════════════════════════════════════════════ -->
+<div id="license-screen" class="hidden">
+  <div class="license-card">
+    <div class="license-logo" id="lic-app-name">cultivaite</div>
+    <div class="license-brand" id="lic-brand-name">Freedom Forge AI</div>
+    <p>Enter your license key to activate this app.</p>
+    <input type="text" id="license-input" placeholder="FFAI-XXXX-XXXX" autocomplete="off" spellcheck="false">
+    <button id="license-btn" onclick="validateLicense()">Activate</button>
+    <div id="license-error"></div>
+    <div class="license-bypass">
+      <a onclick="bypassLicense()">Skip for now</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-brand">
+      <img id="header-logo-img" class="header-logo-img" src="" alt="" style="display:none">
+      <div>
+        <div class="header-logo-text" id="header-logo-text">cultiv<span>aite</span></div>
+        <div class="header-sub" id="header-brand-sub">Freedom Forge AI</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="header-icon-btn" onclick="openModal('settings-modal')" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
+      <button class="header-icon-btn" onclick="openModal('export-modal')" title="Export">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- TAB BAR -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('capture')" id="tab-capture">Capture</button>
+    <button class="tab-btn" onclick="switchTab('scan')" id="tab-scan">Scan</button>
+    <button class="tab-btn" onclick="switchTab('voice')" id="tab-voice">Voice</button>
+    <button class="tab-btn" onclick="switchTab('leads')" id="tab-leads">Leads</button>
+    <button class="tab-btn" onclick="switchTab('map')" id="tab-map">Market Map</button>
+  </nav>
+
+  <!-- ── CAPTURE PANEL ── -->
+  <section class="panel active" id="panel-capture">
+    <h2 class="section-header">New Lead</h2>
+    <p class="section-sub">Manual entry or image capture</p>
+
+    <div class="card">
+      <div class="card-title">Lead Information</div>
+      <div class="field-row">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="cap-first" placeholder="Jane">
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="cap-last" placeholder="Doe">
+        </div>
+      </div>
+      <div class="field">
+        <label>Company</label>
+        <input type="text" id="cap-company" placeholder="Acme Corp">
+      </div>
+      <div class="field">
+        <label>Title / Role</label>
+        <input type="text" id="cap-title" placeholder="VP of Sales">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="cap-email" placeholder="jane@acme.com">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="cap-phone" placeholder="+1 (555) 000-0000">
+        </div>
+      </div>
+      <div class="field">
+        <label>LinkedIn / URL</label>
+        <input type="url" id="cap-linkedin" placeholder="linkedin.com/in/janedoe">
+      </div>
+      <div class="field">
+        <label>Interest</label>
+        <select id="cap-interest">
+          <option value="">— Select —</option>
+          <option>AI Automation</option>
+          <option>Lead Generation</option>
+          <option>Sales Intelligence</option>
+          <option>Market Research</option>
+          <option>Custom AI Solutions</option>
+          <option>Partnership</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Temperature</label>
+        <select id="cap-temp">
+          <option value="warm">Warm</option>
+          <option value="hot">Hot</option>
+          <option value="cold">Cold</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="cap-notes" placeholder="Met at conference, interested in Q1 pilot..."></textarea>
+      </div>
+    </div>
+
+    <!-- Image Capture -->
+    <div class="card">
+      <div class="card-title">Business Card / Image Capture</div>
+      <div class="capture-area">
+        <img id="cap-preview" class="capture-preview" alt="Captured image">
+        <svg id="cap-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:40px;height:40px;color:var(--text-muted);margin-bottom:8px">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <p style="font-size:0.75rem;color:var(--text-muted)">Tap to capture a business card or image</p>
+      </div>
+      <input type="file" id="cap-file" accept="image/*" capture="environment" style="display:none" onchange="handleCapImage(this)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn-secondary btn-icon" onclick="document.getElementById('cap-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Camera
+        </button>
+        <button class="btn-secondary btn-icon" onclick="extractFromImage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Extract AI
+        </button>
+      </div>
+    </div>
+
+    <div class="ai-box" id="cap-ai-box">
+      <div class="ai-box-label">AI Extraction</div>
+      <div class="ai-box-content" id="cap-ai-content"></div>
+    </div>
+
+    <button class="btn-primary btn-icon" onclick="saveLead()" style="margin-top:6px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save Lead
+    </button>
+  </section>
+
+  <!-- ── SCAN PANEL ── -->
+  <section class="panel" id="panel-scan">
+    <h2 class="section-header">QR & Card Scan</h2>
+    <p class="section-sub">Scan QR codes, business cards, Popl, Dot, LinkedIn</p>
+
+    <!-- Live QR Scanner -->
+    <div class="card">
+      <div class="card-title">Live QR Code Scanner</div>
+      <div class="capture-area">
+        <div id="qr-video-container">
+          <video id="qr-video" autoplay playsinline muted></video>
+          <canvas id="qr-canvas"></canvas>
+          <div class="qr-overlay"></div>
+        </div>
+        <div id="qr-idle" style="padding:20px 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:40px;height:40px;color:var(--text-muted);margin-bottom:8px">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M18 14h.01M14 18h.01M18 18h.01M14 22h.01M18 22h.01"/>
+          </svg>
+          <p style="font-size:0.75rem;color:var(--text-muted)">Start camera to scan a QR code in real time</p>
+        </div>
+        <div class="scan-status" id="qr-status"></div>
+      </div>
+      <div class="scan-btn-row">
+        <button class="btn-primary btn-icon" id="qr-start-btn" onclick="startQRScanner()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          Start Camera
+        </button>
+        <button class="btn-secondary btn-icon" id="qr-stop-btn" onclick="stopQRScanner()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>
+          Stop
+        </button>
+      </div>
+
+      <div class="ai-box" id="qr-result-box">
+        <div class="ai-box-label">QR Result</div>
+        <div class="ai-box-content" id="qr-result-content"></div>
+      </div>
+    </div>
+
+    <!-- Image / File QR Scan -->
+    <div class="card">
+      <div class="card-title">Scan QR from Image</div>
+      <div class="capture-area">
+        <img id="scan-preview" class="capture-preview" alt="Scan preview">
+        <p id="scan-idle-text" style="font-size:0.75rem;color:var(--text-muted)">Upload a photo of a QR code or business card</p>
+      </div>
+      <input type="file" id="scan-file" accept="image/*" capture="environment" style="display:none" onchange="handleScanImage(this)">
+      <div class="scan-btn-row">
+        <button class="btn-secondary btn-icon" onclick="document.getElementById('scan-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Photo
+        </button>
+        <button class="btn-secondary btn-icon" onclick="processScanImage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Analyze
+        </button>
+      </div>
+    </div>
+
+    <div class="ai-box" id="scan-ai-box">
+      <div class="ai-box-label">Extracted Contact</div>
+      <div class="ai-box-content" id="scan-ai-content"></div>
+    </div>
+
+    <!-- Scanned lead form -->
+    <div class="card" id="scan-lead-form" style="display:none">
+      <div class="card-title">Confirm & Save</div>
+      <div class="field-row">
+        <div class="field"><label>First Name</label><input type="text" id="scan-first"></div>
+        <div class="field"><label>Last Name</label><input type="text" id="scan-last"></div>
+      </div>
+      <div class="field"><label>Company</label><input type="text" id="scan-company"></div>
+      <div class="field"><label>Email</label><input type="email" id="scan-email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="scan-phone"></div>
+      <div class="field"><label>URL / Profile</label><input type="text" id="scan-url"></div>
+      <div class="field"><label>Notes</label><textarea id="scan-notes"></textarea></div>
+      <button class="btn-primary btn-icon" onclick="saveScanLead()" style="margin-top:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Contact
+      </button>
+    </div>
+  </section>
+
+  <!-- ── VOICE PANEL ── -->
+  <section class="panel" id="panel-voice">
+    <h2 class="section-header">Voice Capture</h2>
+    <p class="section-sub">Speak a lead — AI extracts the details</p>
+
+    <div class="card">
+      <div class="card-title">Voice Recording</div>
+      <div class="capture-area" style="padding:30px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:44px;height:44px;color:var(--silver);margin-bottom:12px">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+        </svg>
+        <p id="voice-idle-text" style="font-size:0.8rem;color:var(--text-muted)">Tap record and describe your lead</p>
+        <div class="voice-status">
+          <div class="voice-indicator" id="voice-indicator"></div>
+          <span id="voice-status-text">Ready</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <button class="btn-primary btn-icon" id="voice-start-btn" onclick="startVoice()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
+          Record
+        </button>
+        <button class="btn-secondary btn-icon" id="voice-stop-btn" onclick="stopVoice()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          Stop
+        </button>
+      </div>
+      <div class="field">
+        <label>Transcript</label>
+        <textarea id="voice-transcript" rows="4" placeholder="Your spoken text will appear here..." oninput="voiceTranscriptEdited()"></textarea>
+      </div>
+      <button class="btn-secondary btn-icon" onclick="extractFromVoice()" id="voice-extract-btn" disabled style="margin-bottom:4px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Extract with AI
+      </button>
+    </div>
+
+    <div class="ai-box" id="voice-ai-box">
+      <div class="ai-box-label">AI Extraction</div>
+      <div class="ai-box-content" id="voice-ai-content"></div>
+    </div>
+
+    <!-- Voice lead form -->
+    <div class="card" id="voice-lead-form" style="display:none">
+      <div class="card-title">Confirm & Save</div>
+      <div class="field-row">
+        <div class="field"><label>First Name</label><input type="text" id="voice-first"></div>
+        <div class="field"><label>Last Name</label><input type="text" id="voice-last"></div>
+      </div>
+      <div class="field"><label>Company</label><input type="text" id="voice-company"></div>
+      <div class="field"><label>Email</label><input type="email" id="voice-email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="voice-phone"></div>
+      <div class="field">
+        <label>Interest</label>
+        <select id="voice-interest">
+          <option value="">— Select —</option>
+          <option>AI Automation</option>
+          <option>Lead Generation</option>
+          <option>Sales Intelligence</option>
+          <option>Market Research</option>
+          <option>Custom AI Solutions</option>
+          <option>Partnership</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Notes</label><textarea id="voice-notes"></textarea></div>
+      <button class="btn-primary btn-icon" onclick="saveVoiceLead()" style="margin-top:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Contact
+      </button>
+    </div>
+  </section>
+
+  <!-- ── LEADS PANEL ── -->
+  <section class="panel" id="panel-leads">
+    <h2 class="section-header">Lead Library</h2>
+    <p class="section-sub">All captured contacts</p>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-hot">0</div><div class="stat-label">Hot</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-today">0</div><div class="stat-label">Today</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:16px">
+      <input type="text" id="leads-search" placeholder="Search leads..." oninput="renderLeads()"
+        style="background:rgba(255,255,255,0.05);border:1px solid rgba(168,184,200,0.2);border-radius:8px;padding:10px 12px;color:var(--text-primary);font-family:'Montserrat',sans-serif;font-size:0.83rem;outline:none">
+      <select id="leads-filter" onchange="renderLeads()"
+        style="background:rgba(255,255,255,0.05);border:1px solid rgba(168,184,200,0.2);border-radius:8px;padding:10px 12px;color:var(--text-primary);font-family:'Montserrat',sans-serif;font-size:0.8rem;outline:none">
+        <option value="all">All Temps</option>
+        <option value="hot">Hot</option>
+        <option value="warm">Warm</option>
+        <option value="cold">Cold</option>
+      </select>
+    </div>
+
+    <div id="leads-list"></div>
+  </section>
+
+  <!-- ── MARKET MAP PANEL ── -->
+  <section class="panel" id="panel-map">
+    <h2 class="section-header">Market Map</h2>
+    <p class="section-sub">AI competitive intelligence</p>
+
+    <div class="card">
+      <div class="card-title">Market Analysis Query</div>
+      <div class="field">
+        <label>Industry / Niche</label>
+        <input type="text" id="map-industry" placeholder="AI Sales Tools, FinTech, SaaS CRM...">
+      </div>
+      <div class="field">
+        <label>Your Company / Product</label>
+        <input type="text" id="map-company" placeholder="Freedom Forge AI — cultivaite">
+      </div>
+      <div class="field">
+        <label>Focus</label>
+        <select id="map-focus">
+          <option value="competitors">Competitive Landscape</option>
+          <option value="whitespace">Market Whitespace</option>
+          <option value="icp">Ideal Customer Profile</option>
+          <option value="trends">Industry Trends</option>
+          <option value="full">Full Market Map</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Additional Context</label>
+        <textarea id="map-context" rows="2" placeholder="Target market, geography, pricing tier..."></textarea>
+      </div>
+      <button class="btn-primary btn-icon" onclick="runMarketMap()" id="map-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        Generate Market Map
+      </button>
+    </div>
+
+    <div class="ai-box" id="map-ai-box">
+      <div class="ai-box-label">Market Intelligence</div>
+      <div class="ai-box-content" id="map-ai-content"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="footer-brand" id="footer-brand-text">cultivaite · Freedom Forge AI</div>
+    <div class="footer-links">
+      <a id="footer-support-link" href="https://go.freedomforgeai.com/ffai_assistance" target="_blank">Support</a>
+      <a id="footer-buy-link" href="https://go.freedomforgeai.com/store-product-detail/product/cultivaite" target="_blank">Get cultivaite</a>
+      <a onclick="openModal('about-modal')">About</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════ -->
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Settings</div>
+      <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">License</div>
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px">Key: <span id="settings-key-display" style="color:var(--silver)">—</span></p>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="settings-new-key" placeholder="Enter new key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(168,184,200,0.2);border-radius:8px;padding:9px 12px;color:var(--text-primary);font-family:'Montserrat',sans-serif;font-size:0.8rem;outline:none">
+        <button class="btn-secondary" onclick="reactivateKey()">Apply</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">Brand Config</div>
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px">Customize this app for your organization</p>
+      <button class="btn-secondary btn-icon" onclick="resetBrandConfig()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Brand Config
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title">Data</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn-secondary" onclick="exportCSV()">Export CSV</button>
+        <button class="btn-secondary" onclick="exportJSON()">Export JSON</button>
+        <button class="btn-secondary" onclick="clearAllData()" style="color:var(--error);border-color:rgba(224,85,85,0.3)">Clear Leads</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Export Leads</div>
+      <button class="modal-close" onclick="closeModal('export-modal')">×</button>
+    </div>
+    <div id="export-summary" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:20px"></div>
+    <div style="display:grid;gap:10px">
+      <button class="btn-primary btn-icon" onclick="exportCSV();closeModal('export-modal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Download CSV
+      </button>
+      <button class="btn-secondary btn-icon" onclick="exportJSON();closeModal('export-modal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Download JSON
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Lead Detail Modal -->
+<div class="modal-overlay" id="lead-detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-modal-name"></div>
+      <button class="modal-close" onclick="closeModal('lead-detail-modal')">×</button>
+    </div>
+    <div id="detail-modal-body"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
+      <button class="btn-secondary" onclick="enrichLead(currentDetailIdx)">Enrich AI</button>
+      <button class="btn-secondary" onclick="deleteLead(currentDetailIdx)" style="color:var(--error);border-color:rgba(224,85,85,0.3)">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div class="modal-overlay" id="about-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">About cultivaite</div>
+      <button class="modal-close" onclick="closeModal('about-modal')">×</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;margin-bottom:16px">
+      cultivaite is an AI-powered lead capture and intelligence app — scan QR codes, capture business cards, record voice, and generate instant market analysis.
+    </p>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px">Powered by <strong id="about-brand-name">Freedom Forge AI</strong></p>
+    <div style="display:grid;gap:8px">
+      <a id="about-support-link" href="https://go.freedomforgeai.com/ffai_assistance" target="_blank" class="btn-secondary btn-icon" style="text-decoration:none;display:flex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        Get Support
+      </a>
+      <a id="about-buy-link" href="https://go.freedomforgeai.com/store-product-detail/product/cultivaite" target="_blank" class="btn-secondary btn-icon" style="text-decoration:none;display:flex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+        Get cultivaite
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════
+   DEFAULTS & CONFIG
+═══════════════════════════════════════════════ */
+const FFAI_DEFAULTS = {
+  brandName: 'Freedom Forge AI',
+  appTitle: 'AI-Powered Lead Intelligence',
+  logoUrl: '',
+  primaryColor: '#0D1B2A',
+  accentColor: '#A8B8C8',
+  supportUrl: 'https://go.freedomforgeai.com/ffai_assistance',
+  buyUrl: 'https://go.freedomforgeai.com/store-product-detail/product/cultivaite',
+  licenseUrl: 'https://raw.githubusercontent.com/coaigence/cultivaite/main/ffai_licenses.json'
+};
+
+const PROXY_URL = 'https://cultivaite-production.up.railway.app';
+const LS_BRAND  = 'ffai_brand_config';
+const LS_LICENSE = 'ffai_license_key';
+const LS_LEADS  = 'ffai_leads';
+
+let cfg = {};
+let leads = [];
+let capturedImageB64 = null;
+let scanImageB64 = null;
+let voiceRecognition = null;
+let qrStream = null;
+let qrAnimFrame = null;
+let placeholderCounter = 1;
+let currentDetailIdx = -1;
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  leads = JSON.parse(localStorage.getItem(LS_LEADS) || '[]');
+
+  const savedCfg = localStorage.getItem(LS_BRAND);
+  if (savedCfg) {
+    cfg = { ...FFAI_DEFAULTS, ...JSON.parse(savedCfg) };
+    hideBrandConfig();
+    checkLicense();
+  } else {
+    prefillBrandForm();
+    document.getElementById('brand-config-screen').classList.remove('hidden');
+  }
+});
+
+function prefillBrandForm() {
+  document.getElementById('cfg-brand-name').value   = FFAI_DEFAULTS.brandName;
+  document.getElementById('cfg-app-title').value    = FFAI_DEFAULTS.appTitle;
+  document.getElementById('cfg-logo-url').value     = FFAI_DEFAULTS.logoUrl;
+  document.getElementById('cfg-primary-color').value = FFAI_DEFAULTS.primaryColor;
+  document.getElementById('cfg-accent-color').value  = FFAI_DEFAULTS.accentColor;
+  document.getElementById('cfg-support-url').value  = FFAI_DEFAULTS.supportUrl;
+  document.getElementById('cfg-buy-url').value      = FFAI_DEFAULTS.buyUrl;
+  document.getElementById('cfg-license-url').value  = FFAI_DEFAULTS.licenseUrl;
+}
+
+function saveBrandConfig() {
+  cfg = {
+    brandName:   document.getElementById('cfg-brand-name').value.trim()   || FFAI_DEFAULTS.brandName,
+    appTitle:    document.getElementById('cfg-app-title').value.trim()    || FFAI_DEFAULTS.appTitle,
+    logoUrl:     document.getElementById('cfg-logo-url').value.trim(),
+    primaryColor: document.getElementById('cfg-primary-color').value,
+    accentColor:  document.getElementById('cfg-accent-color').value,
+    supportUrl:  document.getElementById('cfg-support-url').value.trim()  || FFAI_DEFAULTS.supportUrl,
+    buyUrl:      document.getElementById('cfg-buy-url').value.trim()      || FFAI_DEFAULTS.buyUrl,
+    licenseUrl:  document.getElementById('cfg-license-url').value.trim()  || FFAI_DEFAULTS.licenseUrl
+  };
+  localStorage.setItem(LS_BRAND, JSON.stringify(cfg));
+  hideBrandConfig();
+  checkLicense();
+}
+
+function skipBrandConfig() {
+  cfg = { ...FFAI_DEFAULTS };
+  localStorage.setItem(LS_BRAND, JSON.stringify(cfg));
+  hideBrandConfig();
+  checkLicense();
+}
+
+function hideBrandConfig() {
+  document.getElementById('brand-config-screen').classList.add('hidden');
+  applyBrandConfig();
+}
+
+function resetBrandConfig() {
+  localStorage.removeItem(LS_BRAND);
+  closeModal('settings-modal');
+  prefillBrandForm();
+  document.getElementById('brand-config-screen').classList.remove('hidden');
+}
+
+function applyBrandConfig() {
+  // CSS variables
+  document.documentElement.style.setProperty('--navy', cfg.primaryColor);
+  document.documentElement.style.setProperty('--navy-dark', shadeColor(cfg.primaryColor, -30));
+  document.documentElement.style.setProperty('--navy-mid', shadeColor(cfg.primaryColor, 15));
+  document.documentElement.style.setProperty('--navy-light', shadeColor(cfg.primaryColor, 25));
+  document.documentElement.style.setProperty('--silver', cfg.accentColor);
+  document.documentElement.style.setProperty('--silver-light', lightenColor(cfg.accentColor, 20));
+  document.documentElement.style.setProperty('--silver-bright', lightenColor(cfg.accentColor, 40));
+  document.documentElement.style.setProperty('--steel', mixColors(cfg.primaryColor, cfg.accentColor, 0.5));
+
+  // Text elements
+  setText('header-brand-sub', cfg.brandName);
+  setText('footer-brand-text', `cultivaite · ${cfg.brandName}`);
+  setText('lic-brand-name', cfg.brandName);
+  setText('about-brand-name', cfg.brandName);
+
+  // Links
+  setLink('footer-support-link', cfg.supportUrl);
+  setLink('footer-buy-link', cfg.buyUrl);
+  setLink('about-support-link', cfg.supportUrl);
+  setLink('about-buy-link', cfg.buyUrl);
+
+  // Logo
+  const logoImg = document.getElementById('header-logo-img');
+  if (cfg.logoUrl) {
+    logoImg.src = cfg.logoUrl;
+    logoImg.style.display = 'block';
+  } else {
+    logoImg.style.display = 'none';
+  }
+
+  // Settings display
+  const keyEl = document.getElementById('settings-key-display');
+  if (keyEl) keyEl.textContent = localStorage.getItem(LS_LICENSE) || '—';
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function setLink(id, url) { const el = document.getElementById(id); if (el && url) el.href = url; }
+
+function shadeColor(hex, pct) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, Math.max(0, (n >> 16) + pct));
+  const g = Math.min(255, Math.max(0, ((n >> 8) & 0xff) + pct));
+  const b = Math.min(255, Math.max(0, (n & 0xff) + pct));
+  return '#' + [r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function lightenColor(hex, amt) { return shadeColor(hex, amt); }
+function mixColors(c1, c2, t) {
+  const n1 = parseInt(c1.slice(1),16), n2 = parseInt(c2.slice(1),16);
+  const mix = (a,b) => Math.round(((n1>>a)&0xff)*(1-t) + ((n2>>b)&0xff)*t);
+  const r = Math.round(((n1>>16)&0xff)*(1-t)+((n2>>16)&0xff)*t);
+  const g = Math.round(((n1>>8)&0xff)*(1-t)+((n2>>8)&0xff)*t);
+  const b = Math.round((n1&0xff)*(1-t)+(n2&0xff)*t);
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   LICENSE GATE
+═══════════════════════════════════════════════ */
+async function checkLicense() {
+  const saved = localStorage.getItem(LS_LICENSE);
+  if (saved) {
+    launchApp();
+    return;
+  }
+  document.getElementById('license-screen').classList.remove('hidden');
+}
+
+async function validateLicense() {
+  const key = document.getElementById('license-input').value.trim().toUpperCase();
+  const errEl = document.getElementById('license-error');
+  const btn = document.getElementById('license-btn');
+  if (!key) { errEl.textContent = 'Please enter a license key.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Validating…';
+  errEl.textContent = '';
+
+  try {
+    const licUrl = cfg.licenseUrl || FFAI_DEFAULTS.licenseUrl;
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 3000);
+    const res = await fetch(licUrl, { signal: ctrl.signal, cache: 'no-cache' });
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    const valid = Array.isArray(data.keys) && data.keys.map(k => k.toUpperCase()).includes(key);
+    if (valid) {
+      localStorage.setItem(LS_LICENSE, key);
+      document.getElementById('license-screen').classList.add('hidden');
+      launchApp();
+    } else {
+      errEl.textContent = 'Invalid license key. Try again or contact support.';
+    }
+  } catch (e) {
+    // Fail-open on network error / timeout
+    localStorage.setItem(LS_LICENSE, key);
+    document.getElementById('license-screen').classList.add('hidden');
+    launchApp();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Activate';
+  }
+}
+
+function bypassLicense() {
+  document.getElementById('license-screen').classList.add('hidden');
+  launchApp();
+}
+
+function launchApp() {
+  document.getElementById('app').classList.add('visible');
+  applyBrandConfig();
+  renderLeads();
+  updateStats();
+  document.getElementById('license-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') validateLicense();
+  });
+}
+
+function reactivateKey() {
+  const k = document.getElementById('settings-new-key').value.trim().toUpperCase();
+  if (!k) return;
+  localStorage.setItem(LS_LICENSE, k);
+  document.getElementById('settings-key-display').textContent = k;
+  showToast('License key updated.');
+  closeModal('settings-modal');
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'leads') { renderLeads(); updateStats(); }
+  if (name === 'export') updateExportSummary();
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'export-modal') updateExportSummary();
+  if (id === 'settings-modal') {
+    document.getElementById('settings-key-display').textContent = localStorage.getItem(LS_LICENSE) || '—';
+  }
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+});
+
+/* ═══════════════════════════════════════════════
+   CAPTURE PANEL — IMAGE
+═══════════════════════════════════════════════ */
+function handleCapImage(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('cap-preview');
+    img.src = e.target.result;
+    img.classList.add('visible');
+    document.getElementById('cap-placeholder').style.display = 'none';
+    capturedImageB64 = e.target.result.split(',')[1];
+  };
+  reader.readAsDataURL(file);
+}
+
+async function extractFromImage() {
+  if (!capturedImageB64) { showToast('Capture an image first.'); return; }
+  const box = document.getElementById('cap-ai-box');
+  const content = document.getElementById('cap-ai-content');
+  box.classList.add('visible');
+  content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Extracting contact info…</span></div>';
+  try {
+    const res = await fetch(`${PROXY_URL}/extract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: capturedImageB64 })
+    });
+    const data = await res.json();
+    const text = data.result || data.content || JSON.stringify(data);
+    content.textContent = text;
+    autoFillCapture(text);
+  } catch (e) {
+    content.textContent = 'Extraction failed. Fill in manually.';
+  }
+}
+
+function autoFillCapture(text) {
+  const email = text.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
+  const phone = text.match(/[\+\(]?[\d\s\-\(\)]{7,}/);
+  if (email) document.getElementById('cap-email').value = email[0];
+  if (phone) document.getElementById('cap-phone').value = phone[0].trim();
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines[0]) {
+    const parts = lines[0].split(/\s+/);
+    if (parts.length >= 2) {
+      document.getElementById('cap-first').value = parts[0];
+      document.getElementById('cap-last').value = parts.slice(1).join(' ');
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   SCAN PANEL — IMAGE QR / CARD
+═══════════════════════════════════════════════ */
+function handleScanImage(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('scan-preview');
+    img.src = e.target.result;
+    img.classList.add('visible');
+    document.getElementById('scan-idle-text').style.display = 'none';
+    scanImageB64 = e.target.result.split(',')[1];
+
+    // Try QR decode on static image
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width; canvas.height = image.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if (code) {
+        showQRResult(code.data);
+      }
+    };
+    image.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function processScanImage() {
+  if (!scanImageB64) { showToast('Upload an image first.'); return; }
+  const box = document.getElementById('scan-ai-box');
+  const content = document.getElementById('scan-ai-content');
+  box.classList.add('visible');
+  content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Analyzing image…</span></div>';
+  try {
+    const res = await fetch(`${PROXY_URL}/extract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: scanImageB64 })
+    });
+    const data = await res.json();
+    const text = data.result || data.content || JSON.stringify(data);
+    content.textContent = text;
+    populateScanForm(text);
+  } catch (e) {
+    content.textContent = 'AI extraction failed. Fill in manually.';
+    document.getElementById('scan-lead-form').style.display = 'block';
+  }
+}
+
+function populateScanForm(text) {
+  document.getElementById('scan-lead-form').style.display = 'block';
+  const email = text.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
+  const phone = text.match(/[\+\(]?[\d\s\-\(\)]{7,}/);
+  const url = text.match(/https?:\/\/[^\s]+/i) || text.match(/linkedin\.com\/[^\s]+/i);
+  if (email) document.getElementById('scan-email').value = email[0];
+  if (phone) document.getElementById('scan-phone').value = phone[0].trim();
+  if (url) document.getElementById('scan-url').value = url[0];
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines[0]) {
+    const parts = lines[0].split(/\s+/);
+    if (parts.length >= 2) {
+      document.getElementById('scan-first').value = parts[0];
+      document.getElementById('scan-last').value = parts.slice(1).join(' ');
+    }
+  }
+  document.getElementById('scan-notes').value = text.substring(0, 300);
+}
+
+/* ═══════════════════════════════════════════════
+   LIVE QR SCANNER
+═══════════════════════════════════════════════ */
+async function startQRScanner() {
+  const statusEl = document.getElementById('qr-status');
+  statusEl.textContent = 'Requesting camera…';
+  try {
+    qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('qr-video');
+    video.srcObject = qrStream;
+    await video.play();
+
+    document.getElementById('qr-idle').style.display = 'none';
+    document.getElementById('qr-video-container').classList.add('visible');
+    document.getElementById('qr-start-btn').style.display = 'none';
+    document.getElementById('qr-stop-btn').style.display = '';
+    statusEl.textContent = 'Scanning — hold QR code inside the frame…';
+
+    qrAnimFrame = requestAnimationFrame(qrTick);
+  } catch (e) {
+    statusEl.textContent = 'Camera access denied. Try "Scan QR from Image" below.';
+  }
+}
+
+function qrTick() {
+  const video = document.getElementById('qr-video');
+  const canvas = document.getElementById('qr-canvas');
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: 'dontInvert'
+    });
+    if (code) {
+      stopQRScanner();
+      showQRResult(code.data);
+      return;
+    }
+  }
+  qrAnimFrame = requestAnimationFrame(qrTick);
+}
+
+function stopQRScanner() {
+  if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame = null; }
+  if (qrStream) { qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
+  const video = document.getElementById('qr-video');
+  video.srcObject = null;
+  document.getElementById('qr-video-container').classList.remove('visible');
+  document.getElementById('qr-idle').style.display = '';
+  document.getElementById('qr-start-btn').style.display = '';
+  document.getElementById('qr-stop-btn').style.display = 'none';
+  document.getElementById('qr-status').textContent = '';
+}
+
+function showQRResult(data) {
+  const box = document.getElementById('qr-result-box');
+  const content = document.getElementById('qr-result-content');
+  box.classList.add('visible');
+  document.getElementById('qr-status').textContent = '✓ QR code detected!';
+
+  // Try to parse vCard, URL, or plain text
+  let display = data;
+  let formFields = {};
+
+  if (data.startsWith('BEGIN:VCARD') || data.startsWith('BEGIN:vCard')) {
+    // Parse vCard
+    const vcf = parseVCard(data);
+    formFields = vcf;
+    display = formatVCard(vcf);
+  } else if (data.startsWith('http')) {
+    display = 'URL: ' + data;
+    formFields.url = data;
+    // Check for LinkedIn
+    if (data.includes('linkedin.com')) {
+      display += '\n→ LinkedIn profile detected';
+      formFields.linkedin = data;
+    }
+  }
+
+  content.textContent = display;
+
+  // Populate scan form
+  document.getElementById('scan-lead-form').style.display = 'block';
+  if (formFields.firstName) document.getElementById('scan-first').value = formFields.firstName;
+  if (formFields.lastName)  document.getElementById('scan-last').value  = formFields.lastName;
+  if (formFields.org)       document.getElementById('scan-company').value = formFields.org;
+  if (formFields.email)     document.getElementById('scan-email').value = formFields.email;
+  if (formFields.phone)     document.getElementById('scan-phone').value = formFields.phone;
+  if (formFields.url || formFields.linkedin) {
+    document.getElementById('scan-url').value = formFields.url || formFields.linkedin;
+  }
+  document.getElementById('scan-notes').value = 'QR scan: ' + data.substring(0, 200);
+  showToast('QR code decoded!');
+}
+
+function parseVCard(text) {
+  const get = (key) => {
+    const m = text.match(new RegExp(key + '[^:]*:([^\r\n]+)', 'i'));
+    return m ? m[1].trim() : '';
+  };
+  const fn = get('FN');
+  const parts = fn.split(/\s+/);
+  return {
+    firstName: parts[0] || '',
+    lastName: parts.slice(1).join(' ') || '',
+    org: get('ORG'),
+    email: get('EMAIL'),
+    phone: get('TEL'),
+    url: get('URL')
+  };
+}
+
+function formatVCard(v) {
+  const lines = [];
+  if (v.firstName || v.lastName) lines.push(`Name: ${v.firstName} ${v.lastName}`.trim());
+  if (v.org)   lines.push(`Company: ${v.org}`);
+  if (v.email) lines.push(`Email: ${v.email}`);
+  if (v.phone) lines.push(`Phone: ${v.phone}`);
+  if (v.url)   lines.push(`URL: ${v.url}`);
+  return lines.join('\n') || 'vCard detected (no readable fields)';
+}
+
+/* ═══════════════════════════════════════════════
+   VOICE CAPTURE
+═══════════════════════════════════════════════ */
+function startVoice() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) { showToast('Speech recognition not supported on this browser.'); return; }
+
+  voiceRecognition = new SpeechRec();
+  voiceRecognition.continuous = true;
+  voiceRecognition.interimResults = true;
+  voiceRecognition.lang = 'en-US';
+
+  let finalTranscript = '';
+  voiceRecognition.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    document.getElementById('voice-transcript').value = finalTranscript + interim;
+    checkVoiceExtractReady();
+  };
+
+  voiceRecognition.onerror = e => {
+    document.getElementById('voice-status-text').textContent = 'Error: ' + e.error;
+    stopVoice();
+  };
+
+  voiceRecognition.onend = () => stopVoice();
+  voiceRecognition.start();
+
+  document.getElementById('voice-indicator').classList.add('active');
+  document.getElementById('voice-status-text').textContent = 'Listening…';
+  document.getElementById('voice-start-btn').disabled = true;
+  document.getElementById('voice-stop-btn').disabled = false;
+}
+
+function stopVoice() {
+  if (voiceRecognition) { voiceRecognition.stop(); voiceRecognition = null; }
+  document.getElementById('voice-indicator').classList.remove('active');
+  document.getElementById('voice-status-text').textContent = 'Ready';
+  document.getElementById('voice-start-btn').disabled = false;
+  document.getElementById('voice-stop-btn').disabled = true;
+  checkVoiceExtractReady();
+}
+
+function voiceTranscriptEdited() { checkVoiceExtractReady(); }
+function checkVoiceExtractReady() {
+  const t = document.getElementById('voice-transcript').value.trim();
+  document.getElementById('voice-extract-btn').disabled = t.length < 5;
+}
+
+async function extractFromVoice() {
+  const transcript = document.getElementById('voice-transcript').value.trim();
+  if (!transcript) return;
+  const box = document.getElementById('voice-ai-box');
+  const content = document.getElementById('voice-ai-content');
+  box.classList.add('visible');
+  content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Extracting from voice…</span></div>';
+  try {
+    const res = await fetch(`${PROXY_URL}/extract-voice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript })
+    });
+    const data = await res.json();
+    const text = data.result || data.content || JSON.stringify(data);
+    content.textContent = text;
+    populateVoiceForm(text);
+  } catch (e) {
+    content.textContent = 'Extraction failed. Fill in form manually.';
+    document.getElementById('voice-lead-form').style.display = 'block';
+  }
+}
+
+function populateVoiceForm(text) {
+  document.getElementById('voice-lead-form').style.display = 'block';
+  const email = text.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
+  const phone = text.match(/[\+\(]?[\d\s\-\(\)]{7,}/);
+  if (email) document.getElementById('voice-email').value = email[0];
+  if (phone) document.getElementById('voice-phone').value = phone[0].trim();
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines[0]) {
+    const parts = lines[0].replace(/^name:?\s*/i,'').split(/\s+/);
+    if (parts.length >= 2) {
+      document.getElementById('voice-first').value = parts[0];
+      document.getElementById('voice-last').value = parts.slice(1).join(' ');
+    }
+  }
+  document.getElementById('voice-notes').value = document.getElementById('voice-transcript').value.substring(0, 300);
+}
+
+/* ═══════════════════════════════════════════════
+   LEAD SAVING
+═══════════════════════════════════════════════ */
+function makePlaceholderEmail() {
+  return String(placeholderCounter++).padStart(3,'0') + '@freedomforgeai.com';
+}
+
+function saveLead() {
+  const lead = {
+    id: Date.now(),
+    ts: new Date().toISOString(),
+    source: 'manual',
+    firstName: document.getElementById('cap-first').value.trim(),
+    lastName:  document.getElementById('cap-last').value.trim(),
+    company:   document.getElementById('cap-company').value.trim(),
+    title:     document.getElementById('cap-title').value.trim(),
+    email:     document.getElementById('cap-email').value.trim() || makePlaceholderEmail(),
+    phone:     document.getElementById('cap-phone').value.trim(),
+    linkedin:  document.getElementById('cap-linkedin').value.trim(),
+    interest:  document.getElementById('cap-interest').value,
+    temp:      document.getElementById('cap-temp').value || 'warm',
+    notes:     document.getElementById('cap-notes').value.trim()
+  };
+  leads.push(lead);
+  persistLeads();
+  clearCaptureForm();
+  showToast('Lead saved!');
+  switchTab('leads');
+}
+
+function saveScanLead() {
+  const lead = {
+    id: Date.now(),
+    ts: new Date().toISOString(),
+    source: 'scan',
+    firstName: document.getElementById('scan-first').value.trim(),
+    lastName:  document.getElementById('scan-last').value.trim(),
+    company:   document.getElementById('scan-company').value.trim(),
+    title:     '',
+    email:     document.getElementById('scan-email').value.trim() || makePlaceholderEmail(),
+    phone:     document.getElementById('scan-phone').value.trim(),
+    linkedin:  document.getElementById('scan-url').value.trim(),
+    interest:  '',
+    temp:      'warm',
+    notes:     document.getElementById('scan-notes').value.trim()
+  };
+  leads.push(lead);
+  persistLeads();
+  clearScanForm();
+  showToast('Contact saved!');
+  switchTab('leads');
+}
+
+function saveVoiceLead() {
+  const lead = {
+    id: Date.now(),
+    ts: new Date().toISOString(),
+    source: 'voice',
+    firstName: document.getElementById('voice-first').value.trim(),
+    lastName:  document.getElementById('voice-last').value.trim(),
+    company:   document.getElementById('voice-company').value.trim(),
+    title:     '',
+    email:     document.getElementById('voice-email').value.trim() || makePlaceholderEmail(),
+    phone:     document.getElementById('voice-phone').value.trim(),
+    linkedin:  '',
+    interest:  document.getElementById('voice-interest').value,
+    temp:      'warm',
+    notes:     document.getElementById('voice-notes').value.trim()
+  };
+  leads.push(lead);
+  persistLeads();
+  clearVoiceForm();
+  showToast('Contact saved!');
+  switchTab('leads');
+}
+
+function persistLeads() { localStorage.setItem(LS_LEADS, JSON.stringify(leads)); }
+
+function clearCaptureForm() {
+  ['cap-first','cap-last','cap-company','cap-title','cap-email','cap-phone','cap-linkedin','cap-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('cap-interest').value = '';
+  document.getElementById('cap-temp').value = 'warm';
+  document.getElementById('cap-preview').classList.remove('visible');
+  document.getElementById('cap-placeholder').style.display = '';
+  document.getElementById('cap-ai-box').classList.remove('visible');
+  capturedImageB64 = null;
+}
+
+function clearScanForm() {
+  ['scan-first','scan-last','scan-company','scan-email','scan-phone','scan-url','scan-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('scan-lead-form').style.display = 'none';
+  document.getElementById('scan-preview').classList.remove('visible');
+  document.getElementById('scan-idle-text').style.display = '';
+  document.getElementById('scan-ai-box').classList.remove('visible');
+  document.getElementById('qr-result-box').classList.remove('visible');
+  scanImageB64 = null;
+}
+
+function clearVoiceForm() {
+  ['voice-first','voice-last','voice-company','voice-email','voice-phone','voice-notes','voice-transcript'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('voice-lead-form').style.display = 'none';
+  document.getElementById('voice-ai-box').classList.remove('visible');
+  document.getElementById('voice-extract-btn').disabled = true;
+}
+
+/* ═══════════════════════════════════════════════
+   LEADS LIST
+═══════════════════════════════════════════════ */
+function renderLeads() {
+  const search = (document.getElementById('leads-search')?.value || '').toLowerCase();
+  const filter = document.getElementById('leads-filter')?.value || 'all';
+  const listEl = document.getElementById('leads-list');
+
+  let filtered = leads.filter(l => {
+    if (filter !== 'all' && l.temp !== filter) return false;
+    if (search) {
+      const haystack = `${l.firstName} ${l.lastName} ${l.company} ${l.email} ${l.title}`.toLowerCase();
+      return haystack.includes(search);
+    }
+    return true;
+  }).sort((a,b) => b.ts.localeCompare(a.ts));
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><p>No leads yet — go capture some!</p></div>';
+    return;
+  }
+
+  listEl.innerHTML = filtered.map((l,i) => {
+    const idx = leads.indexOf(l);
+    const name = [l.firstName, l.lastName].filter(Boolean).join(' ') || l.email;
+    const meta = [l.company, l.title].filter(Boolean).join(' · ');
+    const dateStr = new Date(l.ts).toLocaleDateString(undefined, {month:'short', day:'numeric'});
+    return `
+      <div class="lead-item" onclick="openLeadDetail(${idx})">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div>
+            <div class="lead-item-name">${escHtml(name)}</div>
+            ${meta ? `<div class="lead-item-meta">${escHtml(meta)}</div>` : ''}
+            <div class="lead-item-meta" style="margin-top:4px">
+              <span>${escHtml(l.email)}</span>
+              ${l.phone ? `<span>${escHtml(l.phone)}</span>` : ''}
+              <span>${dateStr}</span>
+            </div>
+          </div>
+          <span class="lead-badge ${l.temp || 'warm'}">${l.temp || 'warm'}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = leads.length;
+  document.getElementById('stat-hot').textContent = leads.filter(l => l.temp === 'hot').length;
+  const today = new Date().toDateString();
+  document.getElementById('stat-today').textContent = leads.filter(l => new Date(l.ts).toDateString() === today).length;
+}
+
+function openLeadDetail(idx) {
+  currentDetailIdx = idx;
+  const l = leads[idx];
+  const name = [l.firstName, l.lastName].filter(Boolean).join(' ') || l.email;
+  document.getElementById('detail-modal-name').textContent = name;
+
+  const rows = [
+    ['Company', l.company], ['Title', l.title],
+    ['Email', l.email], ['Phone', l.phone],
+    ['LinkedIn / URL', l.linkedin], ['Interest', l.interest],
+    ['Source', l.source], ['Temperature', l.temp],
+    ['Notes', l.notes],
+    ['Captured', new Date(l.ts).toLocaleString()]
+  ].filter(r => r[1]);
+
+  document.getElementById('detail-modal-body').innerHTML = rows.map(([k,v]) => `
+    <div style="margin-bottom:10px">
+      <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--silver);margin-bottom:2px">${k}</div>
+      <div style="font-size:0.82rem;color:var(--text-secondary)">${escHtml(v)}</div>
+    </div>`).join('');
+
+  openModal('lead-detail-modal');
+}
+
+async function enrichLead(idx) {
+  const l = leads[idx];
+  const name = [l.firstName, l.lastName].filter(Boolean).join(' ');
+  const prompt = `Enrich this lead: Name: ${name}, Company: ${l.company}, Title: ${l.title}, Email: ${l.email}. Provide: likely industry, estimated company size, buying signals, and a personalized outreach opener in 3-4 bullet points.`;
+  const body = document.getElementById('detail-modal-body');
+  const enrichDiv = document.createElement('div');
+  enrichDiv.style.cssText = 'margin-top:16px;padding:14px;background:rgba(74,96,128,0.15);border:1px solid rgba(168,184,200,0.2);border-radius:10px';
+  enrichDiv.innerHTML = '<div style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--silver);margin-bottom:8px">AI Enrichment</div><div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Enriching…</span></div>';
+  body.appendChild(enrichDiv);
+  try {
+    const res = await fetch(`${PROXY_URL}/enrich`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    const text = data.result || data.content || JSON.stringify(data);
+    enrichDiv.querySelector('.ai-thinking').outerHTML = `<div style="font-size:0.82rem;line-height:1.65;color:var(--text-secondary);white-space:pre-wrap">${text}</div>`;
+  } catch (e) {
+    enrichDiv.querySelector('.ai-thinking').outerHTML = '<div style="font-size:0.78rem;color:var(--error)">Enrichment failed.</div>';
+  }
+}
+
+function deleteLead(idx) {
+  leads.splice(idx, 1);
+  persistLeads();
+  closeModal('lead-detail-modal');
+  renderLeads();
+  updateStats();
+  showToast('Lead deleted.');
+}
+
+/* ═══════════════════════════════════════════════
+   MARKET MAP
+═══════════════════════════════════════════════ */
+async function runMarketMap() {
+  const industry = document.getElementById('map-industry').value.trim();
+  const company  = document.getElementById('map-company').value.trim();
+  const focus    = document.getElementById('map-focus').value;
+  const context  = document.getElementById('map-context').value.trim();
+  if (!industry) { showToast('Enter an industry or niche.'); return; }
+
+  const btn = document.getElementById('map-btn');
+  const box = document.getElementById('map-ai-box');
+  const content = document.getElementById('map-ai-content');
+  btn.disabled = true;
+  box.classList.add('visible');
+  content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Generating market intelligence…</span></div>';
+
+  const focusLabels = {
+    competitors: 'competitive landscape analysis',
+    whitespace: 'market whitespace and opportunity gaps',
+    icp: 'ideal customer profile definition',
+    trends: 'industry trends and emerging forces',
+    full: 'comprehensive market map'
+  };
+
+  const prompt = `Generate a ${focusLabels[focus]} for:
+Industry/Niche: ${industry}
+${company ? 'Company/Product: ' + company : ''}
+${context ? 'Context: ' + context : ''}
+
+Provide structured, actionable intelligence with clear sections, key players, and strategic recommendations. Format clearly with headers and bullet points.`;
+
+  try {
+    const res = await fetch(`${PROXY_URL}/market-map`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    content.textContent = data.result || data.content || JSON.stringify(data);
+  } catch (e) {
+    content.textContent = 'Market map generation failed. Check your connection.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════════ */
+function updateExportSummary() {
+  const el = document.getElementById('export-summary');
+  if (el) el.textContent = `${leads.length} lead${leads.length !== 1 ? 's' : ''} ready to export.`;
+}
+
+function exportCSV() {
+  if (!leads.length) { showToast('No leads to export.'); return; }
+  const cols = ['firstName','lastName','company','title','email','phone','linkedin','interest','temp','source','notes','ts'];
+  const header = cols.join(',');
+  const rows = leads.map(l => cols.map(c => `"${String(l[c]||'').replace(/"/g,'""')}"`).join(','));
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `ffai_leads_${date}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('CSV downloaded.');
+}
+
+function exportJSON() {
+  if (!leads.length) { showToast('No leads to export.'); return; }
+  const blob = new Blob([JSON.stringify(leads, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `ffai_leads_${date}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('JSON downloaded.');
+}
+
+function clearAllData() {
+  if (!confirm('Delete all leads? This cannot be undone.')) return;
+  leads = [];
+  persistLeads();
+  renderLeads();
+  updateStats();
+  showToast('All leads cleared.');
+  closeModal('settings-modal');
+}
+
+/* ═══════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// Keyboard: Enter on license field
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement?.id === 'license-input') validateLicense();
+});
+
+// Stop QR scanner on tab switch away
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!btn.id.includes('scan') && qrStream) stopQRScanner();
+  });
+});
+</script>
+</body>
+</html>
