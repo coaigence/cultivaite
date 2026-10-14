@@ -1088,25 +1088,44 @@ body {
 
 <!-- About Modal -->
 <div class="modal-overlay" id="about-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">About cultivaite</div>
-      <button class="modal-close" onclick="closeModal('about-modal')">×</button>
+  <div class="modal" style="padding:0;overflow:hidden;max-width:360px;background:linear-gradient(160deg,#0D2B5E 0%,#0D1B2A 100%)">
+    <!-- close -->
+    <button class="modal-close" onclick="closeModal('about-modal')" style="position:absolute;top:14px;right:16px;z-index:2">×</button>
+    <!-- header -->
+    <div style="text-align:center;padding:28px 24px 0">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;letter-spacing:0.04em;color:#fff">cultiv<em>ai</em>te</div>
+      <div style="font-size:0.72rem;color:var(--silver-light);letter-spacing:0.12em;margin-top:4px">Your potential network, organized.</div>
     </div>
-    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;margin-bottom:16px">
-      cultivaite is an AI-powered lead capture and intelligence app — scan QR codes, capture business cards, record voice, and generate instant market analysis.
-    </p>
-    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px">Powered by <strong id="about-brand-name">Freedom Forge AI</strong></p>
-    <div style="display:grid;gap:8px">
-      <a id="about-support-link" href="https://go.freedomforgeai.com/ffai_assistance" target="_blank" class="btn-secondary btn-icon" style="text-decoration:none;display:flex">
+    <!-- card -->
+    <div style="margin:20px 16px;background:linear-gradient(145deg,#0a2040 0%,#152d55 100%);border-radius:16px;border:1px solid rgba(168,184,200,0.2);padding:20px 16px;text-align:center">
+      <img src="https://raw.githubusercontent.com/coaigence/cultivaite/main/FFAI_logo_350x180.png"
+           alt="Freedom Forge AI"
+           style="height:48px;object-fit:contain;display:block;margin:0 auto 12px" />
+      <div style="font-size:0.62rem;letter-spacing:0.18em;color:var(--silver);margin-bottom:10px">CULTIVAITE &bull; PRODUCT DETAILS</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;color:#fff;margin-bottom:16px">Grow better connections.</div>
+      <!-- QR — fixed size, no distortion -->
+      <div style="background:#fff;border-radius:12px;padding:12px;display:inline-block;margin-bottom:12px">
+        <img src="https://raw.githubusercontent.com/coaigence/cultivaite/main/QR-cultivaite%20Buy%20NOW.png"
+             alt="Scan to buy cultivaite"
+             width="200" height="200"
+             style="display:block;image-rendering:crisp-edges" />
+      </div>
+      <div style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:6px">Scan to purchase</div>
+      <div style="font-size:0.68rem;color:var(--text-muted);line-height:1.5">Point your camera at the code to open<br>the cultivaite product page.</div>
+    </div>
+    <!-- buttons -->
+    <div style="padding:0 16px 20px;display:grid;gap:8px">
+      <a id="about-buy-link" href="https://go.freedomforgeai.com/store-product-detail/product/cultivaite" target="_blank"
+         class="btn-primary" style="text-decoration:none;display:block;text-align:center;letter-spacing:0.12em;font-size:0.72rem">
+        SCAN TO PURCHASE
+      </a>
+      <a id="about-support-link" href="https://go.freedomforgeai.com/ffai_assistance" target="_blank"
+         class="btn-secondary btn-icon" style="text-decoration:none;display:flex;justify-content:center">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
         Get Support
       </a>
-      <a id="about-buy-link" href="https://go.freedomforgeai.com/store-product-detail/product/cultivaite" target="_blank" class="btn-secondary btn-icon" style="text-decoration:none;display:flex">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
-        Get cultivaite
-      </a>
     </div>
+    <p style="text-align:center;font-size:0.65rem;color:var(--text-muted);padding-bottom:16px">Powered by <strong id="about-brand-name">Freedom Forge AI</strong></p>
   </div>
 </div>
 
@@ -1122,7 +1141,7 @@ body {
 const FFAI_DEFAULTS = {
   brandName: 'Freedom Forge AI',
   appTitle: 'AI-Powered Lead Intelligence',
-  logoUrl: 'https://assets.cdn.filesafe.space/C1EtdGZQeBIYJGcudFM4/media/6a751aeebd6349ece2d1fd03.png',
+  logoUrl: 'https://raw.githubusercontent.com/coaigence/cultivaite/main/FFAI_logo_350x180.png',
   primaryColor: '#0D1B2A',
   accentColor: '#A8B8C8',
   supportUrl: 'https://go.freedomforgeai.com/ffai_assistance',
