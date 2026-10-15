@@ -380,6 +380,7 @@ body {
 .ai-box-content {
   font-size: 0.82rem; line-height: 1.65;
   color: var(--text-secondary); white-space: pre-wrap;
+  overflow-wrap: anywhere; word-break: break-word;
 }
 .ai-thinking { display: flex; align-items: center; gap: 8px; }
 .ai-thinking span {
@@ -1784,6 +1785,20 @@ function detectCardType(url) {
     hint: 'Reading the linked page for contact details…' };
 }
 
+/* Open a card link in Chrome on Android (via intent URL, with fallback to
+   the default browser if Chrome is missing); plain new tab elsewhere. */
+function openCardUrl(url) {
+  const isAndroid = /android/i.test(navigator.userAgent || '');
+  if (isAndroid) {
+    const stripped = url.replace(/^https?:\/\//i, '');
+    window.location.href = 'intent://' + stripped +
+      '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' +
+      encodeURIComponent(url) + ';end';
+  } else {
+    window.open(url, '_blank', 'noopener');
+  }
+}
+
 function showCardLinkResult(url) {
   const content = document.getElementById('qr-result-content');
   document.getElementById('scan-lead-form').style.display = 'none';
@@ -1797,7 +1812,7 @@ function showCardLinkResult(url) {
   content.appendChild(title);
 
   const link = document.createElement('div');
-  link.style.cssText = 'font-size:13px;color:#5b6b7b;word-break:break-all;margin-bottom:10px;';
+  link.style.cssText = 'font-size:13px;color:#5b6b7b;word-break:break-all;overflow-wrap:anywhere;max-width:100%;margin-bottom:10px;';
   link.textContent = url;
   content.appendChild(link);
 
@@ -1806,8 +1821,8 @@ function showCardLinkResult(url) {
   const openBtn = document.createElement('button');
   openBtn.className = 'btn btn-primary';
   openBtn.style.flex = '1';
-  openBtn.textContent = 'Open card';
-  openBtn.onclick = () => window.open(url, '_blank', 'noopener');
+  openBtn.textContent = 'Open in Chrome';
+  openBtn.onclick = () => openCardUrl(url);
   const copyBtn = document.createElement('button');
   copyBtn.className = 'btn btn-ghost';
   copyBtn.textContent = 'Copy link';
