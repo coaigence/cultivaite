@@ -650,7 +650,7 @@ body {
     <div class="header-brand">
       <img id="header-logo-img" class="header-logo-img" src="" alt="" style="display:none">
       <div>
-        <div class="header-logo-text" id="header-logo-text">cultiv<span>aite</span></div>
+        <div class="header-logo-text" id="header-logo-text">cultiv<em>ai</em>te</div>
         <div class="header-sub" id="header-brand-sub">Freedom Forge AI</div>
       </div>
     </div>
@@ -986,8 +986,33 @@ body {
         </select>
       </div>
       <div class="field">
+        <label>State / Region</label>
+        <input type="text" id="map-state" placeholder="Texas, California, Southeast US...">
+      </div>
+      <div class="field">
+        <label>City / Area</label>
+        <input type="text" id="map-city" placeholder="Austin, Dallas Metro, Bay Area...">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label>Search Radius</label>
+          <select id="map-radius">
+            <option value="10 miles">10 miles</option>
+            <option value="25 miles" selected>25 miles</option>
+            <option value="50 miles">50 miles</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Results</label>
+          <select id="map-count">
+            <option value="5">5 records</option>
+            <option value="10" selected>10 records</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
         <label>Additional Context</label>
-        <textarea id="map-context" rows="2" placeholder="Target market, geography, pricing tier..."></textarea>
+        <textarea id="map-context" rows="2" placeholder="Target market, pricing tier, notes..."></textarea>
       </div>
       <button class="btn-primary btn-icon" onclick="runMarketMap()" id="map-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
@@ -1006,7 +1031,7 @@ body {
     <div class="footer-brand" id="footer-brand-text">cultivaite · Freedom Forge AI</div>
     <div class="footer-links">
       <a id="footer-support-link" href="https://go.freedomforgeai.com/ffai_assistance" target="_blank">Support</a>
-      <a id="footer-buy-link" href="https://go.freedomforgeai.com/store-product-detail/product/cultivaite" target="_blank">Get cultivaite</a>
+      <a id="footer-buy-link" href="#" onclick="openModal('about-modal');return false;">Get cultivaite</a>
       <a onclick="openModal('about-modal')">About</a>
     </div>
   </footer>
@@ -1246,7 +1271,7 @@ function applyBrandConfig() {
 
   // Links
   setLink('footer-support-link', cfg.supportUrl);
-  setLink('footer-buy-link', cfg.buyUrl);
+  // footer-buy-link stays as onclick="openModal('about-modal')" — do not override href
   setLink('about-support-link', cfg.supportUrl);
   setLink('about-buy-link', cfg.buyUrl);
 
@@ -1396,25 +1421,47 @@ function handleCapImage(input) {
   reader.readAsDataURL(file);
 }
 
+function resizeImage(base64, maxWidth, callback) {
+  const img = new Image();
+  img.onload = () => {
+    let w = img.width, h = img.height;
+    if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
+  };
+  img.src = 'data:image/jpeg;base64,' + base64;
+}
+
 async function extractFromImage() {
   if (!capturedImageB64) { showToast('Capture an image first.'); return; }
   const box = document.getElementById('cap-ai-box');
   const content = document.getElementById('cap-ai-content');
   box.classList.add('visible');
   content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Extracting contact info…</span></div>';
-  try {
-    const res = await fetch(`${PROXY_URL}/extract`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: capturedImageB64 })
-    });
-    const data = await res.json();
-    const text = data.result || data.content || JSON.stringify(data);
-    content.textContent = text;
-    autoFillCapture(text);
-  } catch (e) {
-    content.textContent = 'Extraction failed. Fill in manually.';
-  }
+
+  resizeImage(capturedImageB64, 1200, async (resizedB64) => {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch(`${PROXY_URL}/extract`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: resizedB64 }),
+        signal: ctrl.signal
+      });
+      clearTimeout(timer);
+      const data = await res.json();
+      const text = data.result || data.content || JSON.stringify(data);
+      content.textContent = text;
+      autoFillCapture(text);
+    } catch (e) {
+      content.textContent = e.name === 'AbortError'
+        ? 'Request timed out. Try again.'
+        : 'Extraction failed. Fill in manually.';
+    }
+  });
 }
 
 function autoFillCapture(text) {
@@ -1469,20 +1516,29 @@ async function processScanImage() {
   const content = document.getElementById('scan-ai-content');
   box.classList.add('visible');
   content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Analyzing image…</span></div>';
-  try {
-    const res = await fetch(`${PROXY_URL}/extract`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: scanImageB64 })
-    });
-    const data = await res.json();
-    const text = data.result || data.content || JSON.stringify(data);
-    content.textContent = text;
-    populateScanForm(text);
-  } catch (e) {
-    content.textContent = 'AI extraction failed. Fill in manually.';
-    document.getElementById('scan-lead-form').style.display = 'block';
-  }
+
+  resizeImage(scanImageB64, 1200, async (resizedB64) => {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch(`${PROXY_URL}/extract`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: resizedB64 }),
+        signal: ctrl.signal
+      });
+      clearTimeout(timer);
+      const data = await res.json();
+      const text = data.result || data.content || JSON.stringify(data);
+      content.textContent = text;
+      populateScanForm(text);
+    } catch (e) {
+      content.textContent = e.name === 'AbortError'
+        ? 'Request timed out. Try again.'
+        : 'AI extraction failed. Fill in manually.';
+      document.getElementById('scan-lead-form').style.display = 'block';
+    }
+  });
 }
 
 function populateScanForm(text) {
@@ -1530,7 +1586,12 @@ async function startQRScanner() {
   }
 }
 
-function qrTick() {
+let qrLastTick = 0;
+function qrTick(timestamp) {
+  // Throttle to ~10fps so autofocus has time to settle
+  if (timestamp - qrLastTick < 100) { qrAnimFrame = requestAnimationFrame(qrTick); return; }
+  qrLastTick = timestamp;
+
   const video = document.getElementById('qr-video');
   const canvas = document.getElementById('qr-canvas');
   if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -1540,7 +1601,7 @@ function qrTick() {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'dontInvert'
+      inversionAttempts: 'attemptBoth'
     });
     if (code) {
       stopQRScanner();
@@ -1691,17 +1752,23 @@ async function extractFromVoice() {
   box.classList.add('visible');
   content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Extracting from voice…</span></div>';
   try {
-    const res = await fetch(`${PROXY_URL}/extract-voice`, {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(`${PROXY_URL}/extract`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript })
+      body: JSON.stringify({ transcript }),
+      signal: ctrl.signal
     });
+    clearTimeout(timer);
     const data = await res.json();
     const text = data.result || data.content || JSON.stringify(data);
     content.textContent = text;
     populateVoiceForm(text);
   } catch (e) {
-    content.textContent = 'Extraction failed. Fill in form manually.';
+    content.textContent = e.name === 'AbortError'
+      ? 'Request timed out. Try again.'
+      : 'Extraction failed. Fill in form manually.';
     document.getElementById('voice-lead-form').style.display = 'block';
   }
 }
@@ -1949,6 +2016,10 @@ async function runMarketMap() {
   const industry = document.getElementById('map-industry').value.trim();
   const company  = document.getElementById('map-company').value.trim();
   const focus    = document.getElementById('map-focus').value;
+  const state    = document.getElementById('map-state').value.trim();
+  const city     = document.getElementById('map-city').value.trim();
+  const radius   = document.getElementById('map-radius').value;
+  const count    = document.getElementById('map-count').value;
   const context  = document.getElementById('map-context').value.trim();
   if (!industry) { showToast('Enter an industry or niche.'); return; }
 
@@ -1967,23 +2038,32 @@ async function runMarketMap() {
     full: 'comprehensive market map'
   };
 
+  const geo = [city, state].filter(Boolean).join(', ');
   const prompt = `Generate a ${focusLabels[focus]} for:
 Industry/Niche: ${industry}
 ${company ? 'Company/Product: ' + company : ''}
+${geo ? 'Location: ' + geo + ' (within ' + radius + ')' : ''}
+Results to include: ${count}
 ${context ? 'Context: ' + context : ''}
 
-Provide structured, actionable intelligence with clear sections, key players, and strategic recommendations. Format clearly with headers and bullet points.`;
+Provide ${count} specific, actionable results with structured information. Include location details where relevant. Format clearly with headers and bullet points.`;
 
   try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
     const res = await fetch(`${PROXY_URL}/market-map`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt }),
+      signal: ctrl.signal
     });
+    clearTimeout(timer);
     const data = await res.json();
     content.textContent = data.result || data.content || JSON.stringify(data);
   } catch (e) {
-    content.textContent = 'Market map generation failed. Check your connection.';
+    content.textContent = e.name === 'AbortError'
+      ? 'Request timed out. Try again.'
+      : 'Market map generation failed. Check your connection.';
   } finally {
     btn.disabled = false;
   }
