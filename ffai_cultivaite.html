@@ -10,7 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+// Fallback CDN if the primary fails — QR features need jsQR to be defined
+if (typeof jsQR === 'undefined') {
+  var _qrFallback = document.createElement('script');
+  _qrFallback.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+  document.head.appendChild(_qrFallback);
+}
+</script>
 <style>
 :root {
   --navy: #0D1B2A;
@@ -442,6 +450,19 @@ body {
 .map-query-area button:hover:not(:disabled) { background: linear-gradient(135deg, #5A7090 0%, #2A4060 100%); }
 .map-query-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── MAP RESULTS ── */
+.map-result-row {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,184,200,0.12);
+  border-left: 4px solid var(--steel);
+  border-radius: 10px; padding: 12px; margin-bottom: 10px;
+}
+.map-result-row.selected { background: rgba(168,184,200,0.10); border-color: rgba(168,184,200,0.35); }
+.map-row-head { display: flex; gap: 10px; align-items: flex-start; }
+.map-row-check { margin-top: 3px; flex-shrink: 0; }
+.map-row-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.map-row-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
 /* ── MODAL ── */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 2000;
@@ -692,7 +713,7 @@ body {
         </div>
         <div class="field">
           <label>Last Name</label>
-          <input type="text" id="cap-last" placeholder="Doe">
+          <input type="text" id="cap-last" placeholder="Last">
         </div>
       </div>
       <div class="field">
@@ -824,7 +845,7 @@ body {
         <img id="scan-preview" class="capture-preview" alt="Scan preview">
         <p id="scan-idle-text" style="font-size:0.75rem;color:var(--text-muted)">Upload a photo of a QR code or business card</p>
       </div>
-      <input type="file" id="scan-file" accept="image/*" capture="environment" style="display:none" onchange="handleScanImage(this)">
+      <input type="file" id="scan-file" accept="image/*" style="display:none" onchange="handleScanImage(this)">
       <div class="scan-btn-row">
         <button class="btn-secondary btn-icon" onclick="document.getElementById('scan-file').click()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -963,35 +984,25 @@ body {
   <!-- ── MARKET MAP PANEL ── -->
   <section class="panel" id="panel-map">
     <h2 class="section-header">Market Map</h2>
-    <p class="section-sub">AI competitive intelligence</p>
+    <p class="section-sub">AI prospect research</p>
 
     <div class="card">
-      <div class="card-title">Market Analysis Query</div>
+      <div class="card-title">Prospect Search</div>
       <div class="field">
         <label>Industry / Niche</label>
-        <input type="text" id="map-industry" placeholder="AI Sales Tools, FinTech, SaaS CRM...">
+        <input type="text" id="map-industry" placeholder="roofers, dental offices, law firms...">
       </div>
       <div class="field">
         <label>Your Company / Product</label>
         <input type="text" id="map-company" placeholder="Freedom Forge AI — cultivaite">
       </div>
       <div class="field">
-        <label>Focus</label>
-        <select id="map-focus">
-          <option value="competitors">Competitive Landscape</option>
-          <option value="whitespace">Market Whitespace</option>
-          <option value="icp">Ideal Customer Profile</option>
-          <option value="trends">Industry Trends</option>
-          <option value="full">Full Market Map</option>
-        </select>
-      </div>
-      <div class="field">
         <label>State / Region</label>
-        <input type="text" id="map-state" placeholder="Texas, California, Southeast US...">
+        <input type="text" id="map-state" placeholder="Connecticut">
       </div>
       <div class="field">
         <label>City / Area</label>
-        <input type="text" id="map-city" placeholder="Austin, Dallas Metro, Bay Area...">
+        <input type="text" id="map-city" placeholder="Danbury, Fairfield County...">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="field">
@@ -1016,13 +1027,28 @@ body {
       </div>
       <button class="btn-primary btn-icon" onclick="runMarketMap()" id="map-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-        Generate Market Map
+        Find Prospects
       </button>
     </div>
 
     <div class="ai-box" id="map-ai-box">
-      <div class="ai-box-label">Market Intelligence</div>
+      <div class="ai-box-label">Searching</div>
       <div class="ai-box-content" id="map-ai-content"></div>
+    </div>
+
+    <div id="map-results-wrap" style="display:none;margin-top:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="ai-box-label" style="margin:0">Select prospects</div>
+        <label style="font-size:0.7rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="select-all-map" onchange="toggleSelectAll(this)"> Select all
+        </label>
+      </div>
+      <div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:10px">🟢 email + phone &nbsp; 🟡 missing one &nbsp; 🔴 placeholder email</div>
+      <div id="map-results-list"></div>
+      <button class="btn-primary btn-icon" onclick="addMapLeadsToQueue()" style="margin-top:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Add Selected to Leads
+      </button>
     </div>
   </section>
 
@@ -1060,7 +1086,7 @@ body {
       <div class="card-title">Brand Config</div>
       <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px">Customize this app for your organization</p>
       <button class="btn-secondary btn-icon" onclick="resetBrandConfig()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit Brand Config
       </button>
     </div>
@@ -1188,6 +1214,7 @@ let qrStream = null;
 let qrAnimFrame = null;
 let placeholderCounter = 1;
 let currentDetailIdx = -1;
+let mapResults = [];
 
 /* ═══════════════════════════════════════════════
    INIT
@@ -1444,7 +1471,7 @@ async function extractFromImage() {
   resizeImage(capturedImageB64, 1200, async (resizedB64) => {
     try {
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const timer = setTimeout(() => ctrl.abort(), 25000);
       const res = await fetch(`${PROXY_URL}/extract`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1532,17 +1559,28 @@ function handleScanImage(input) {
     document.getElementById('scan-idle-text').style.display = 'none';
     scanImageB64 = e.target.result.split(',')[1];
 
-    // Try QR decode on static image
+    // Try QR decode on static image (instant, free — no AI cost)
     const image = new Image();
     image.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = image.width; canvas.height = image.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(image, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height);
-      if (code) {
-        showQRResult(code.data);
+      try {
+        if (typeof jsQR === 'undefined') { showToast('QR library not loaded. Check connection, or tap Analyze.'); return; }
+        // Downscale large photos — jsQR is faster and often more accurate on smaller images
+        const maxDim = 1200;
+        const scale = Math.max(image.width, image.height) > maxDim ? maxDim / Math.max(image.width, image.height) : 1;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(image.width * scale);
+        canvas.height = Math.round(image.height * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+        if (code) {
+          showQRResult(code.data);
+        } else {
+          showToast('No QR code found — tap Analyze to read it with AI.');
+        }
+      } catch (err) {
+        showToast('Could not read image. Tap Analyze for AI.');
       }
     };
     image.src = e.target.result;
@@ -1560,7 +1598,7 @@ async function processScanImage() {
   resizeImage(scanImageB64, 1200, async (resizedB64) => {
     try {
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const timer = setTimeout(() => ctrl.abort(), 25000);
       const res = await fetch(`${PROXY_URL}/extract`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1600,6 +1638,14 @@ function populateScanForm(data) {
 ═══════════════════════════════════════════════ */
 async function startQRScanner() {
   const statusEl = document.getElementById('qr-status');
+  if (typeof jsQR === 'undefined') {
+    statusEl.textContent = 'QR library failed to load. Check your connection and reload the app.';
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    statusEl.textContent = 'Camera not available here. Use "Scan QR from Image" below instead.';
+    return;
+  }
   statusEl.textContent = 'Requesting camera…';
   try {
     qrStream = await navigator.mediaDevices.getUserMedia({
@@ -1623,26 +1669,30 @@ async function startQRScanner() {
 
 let qrLastTick = 0;
 function qrTick(timestamp) {
-  // Throttle to ~10fps so autofocus has time to settle
-  if (timestamp - qrLastTick < 100) { qrAnimFrame = requestAnimationFrame(qrTick); return; }
+  // Throttle to ~8fps so autofocus has time to settle
+  if (timestamp - qrLastTick < 120) { qrAnimFrame = requestAnimationFrame(qrTick); return; }
   qrLastTick = timestamp;
 
-  const video = document.getElementById('qr-video');
-  const canvas = document.getElementById('qr-canvas');
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'attemptBoth'
-    });
-    if (code) {
-      stopQRScanner();
-      showQRResult(code.data);
-      return;
+  try {
+    const video = document.getElementById('qr-video');
+    const canvas = document.getElementById('qr-canvas');
+    if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'attemptBoth'
+      });
+      if (code) {
+        stopQRScanner();
+        showQRResult(code.data);
+        return;
+      }
     }
+  } catch (e) {
+    // One bad frame must not kill the loop — keep scanning
   }
   qrAnimFrame = requestAnimationFrame(qrTick);
 }
@@ -1669,17 +1719,19 @@ function showQRResult(data) {
   let display = data;
   let formFields = {};
 
-  if (data.startsWith('BEGIN:VCARD') || data.startsWith('BEGIN:vCard')) {
+  if (/^BEGIN:VCARD/i.test(data)) {
     // Parse vCard
     const vcf = parseVCard(data);
     formFields = vcf;
     display = formatVCard(vcf);
-  } else if (data.startsWith('http')) {
-    display = 'URL detected — extracting contact info…';
+  } else if (/^https?:\/\//i.test(data)) {
+    display = 'URL: ' + data;
     formFields.url = data;
-    if (data.includes('linkedin.com')) formFields.linkedin = data;
-    // Auto-extract contact from URL via proxy
-    extractFromQRUrl(data, content);
+    // Check for LinkedIn
+    if (data.includes('linkedin.com')) {
+      display += '\n→ LinkedIn profile detected';
+      formFields.linkedin = data;
+    }
   }
 
   content.textContent = display;
@@ -1696,33 +1748,6 @@ function showQRResult(data) {
   }
   document.getElementById('scan-notes').value = 'QR scan: ' + data.substring(0, 200);
   showToast('QR code decoded!');
-}
-
-async function extractFromQRUrl(url, contentEl) {
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 12000);
-    const res = await fetch(`${PROXY_URL}/extract`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript: 'Extract contact info from this profile URL: ' + url }),
-      signal: ctrl.signal
-    });
-    clearTimeout(timer);
-    const data = await res.json();
-    const { text, fields } = normalizeResult(data);
-    if (contentEl) contentEl.textContent = text || 'Contact info extracted.';
-    if (fields.first)   document.getElementById('scan-first').value   = fields.first;
-    if (fields.last)    document.getElementById('scan-last').value    = fields.last;
-    if (fields.company) document.getElementById('scan-company').value = fields.company;
-    if (fields.title)   { /* scan form has no title field, put in notes */ }
-    if (fields.email)   document.getElementById('scan-email').value   = fields.email;
-    if (fields.phone)   document.getElementById('scan-phone').value   = fields.phone;
-    document.getElementById('scan-url').value = url;
-  } catch(e) {
-    if (contentEl) contentEl.textContent = 'Could not extract from URL. Fill in manually.';
-    document.getElementById('scan-url').value = url;
-  }
 }
 
 function parseVCard(text) {
@@ -1813,7 +1838,7 @@ async function extractFromVoice() {
   content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Extracting from voice…</span></div>';
   try {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000);
+    const timer = setTimeout(() => ctrl.abort(), 15000);
     const res = await fetch(`${PROXY_URL}/extract`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2033,25 +2058,37 @@ function openLeadDetail(idx) {
 
 async function enrichLead(idx) {
   const l = leads[idx];
-  const name = [l.firstName, l.lastName].filter(Boolean).join(' ');
-  const prompt = `Enrich this lead: Name: ${name}, Company: ${l.company}, Title: ${l.title}, Email: ${l.email}. Provide: likely industry, estimated company size, buying signals, and a personalized outreach opener in 3-4 bullet points.`;
+  const name = [l.firstName, l.lastName].filter(Boolean).join(' ') || 'Unknown';
   const body = document.getElementById('detail-modal-body');
   const enrichDiv = document.createElement('div');
   enrichDiv.style.cssText = 'margin-top:16px;padding:14px;background:rgba(74,96,128,0.15);border:1px solid rgba(168,184,200,0.2);border-radius:10px';
   enrichDiv.innerHTML = '<div style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--silver);margin-bottom:8px">AI Enrichment</div><div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Enriching…</span></div>';
   body.appendChild(enrichDiv);
+  const outEl = document.createElement('div');
+  outEl.style.cssText = 'font-size:0.82rem;line-height:1.65;color:var(--text-secondary);white-space:pre-wrap';
   try {
-    const res = await fetch(`${PROXY_URL}/enrich`, {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 60000);
+    const res = await fetch(`${PROXY_URL}/map`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt: `Enrich this sales lead. Lead: ${name}, Company: ${l.company || ''}, Title: ${l.title || ''}, Email: ${l.email || ''}. Respond with ONLY a valid JSON array containing exactly one object with these keys: {"industry":"","company_size":"","buying_signals":"","opener":""}. No markdown.` }),
+      signal: ctrl.signal
     });
+    clearTimeout(timer);
     const data = await res.json();
-    const text = data.result || data.content || JSON.stringify(data);
-    enrichDiv.querySelector('.ai-thinking').outerHTML = `<div style="font-size:0.82rem;line-height:1.65;color:var(--text-secondary);white-space:pre-wrap">${text}</div>`;
+    const r = (data.result && data.result[0]) || {};
+    outEl.textContent =
+      `Industry: ${r.industry || '—'}\n` +
+      `Company size: ${r.company_size || '—'}\n` +
+      `Buying signals: ${r.buying_signals || '—'}\n` +
+      `Opener: ${r.opener || '—'}`;
   } catch (e) {
-    enrichDiv.querySelector('.ai-thinking').outerHTML = '<div style="font-size:0.78rem;color:var(--error)">Enrichment failed.</div>';
+    outEl.textContent = 'Enrichment failed. Check your connection and try again.';
   }
+  const thinking = enrichDiv.querySelector('.ai-thinking');
+  if (thinking) thinking.replaceWith(outEl);
+  else enrichDiv.appendChild(outEl);
 }
 
 function deleteLead(idx) {
@@ -2064,12 +2101,92 @@ function deleteLead(idx) {
 }
 
 /* ═══════════════════════════════════════════════
-   MARKET MAP
+   MARKET MAP — prospect search via /map endpoint
 ═══════════════════════════════════════════════ */
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.map-row-check').forEach(function(c) {
+    c.checked = cb.checked;
+    const row = c.closest('.map-result-row');
+    if (row) row.classList.toggle('selected', cb.checked);
+  });
+}
+
+function toggleRowSelect(cb, i) {
+  const row = document.getElementById('map-row-' + i);
+  if (row) row.classList.toggle('selected', cb.checked);
+}
+
+function assignMapPlaceholders(records) {
+  return (records || []).map(function(r) {
+    r = r || {};
+    if (!r.email || String(r.email).trim() === '') {
+      r.email = makePlaceholderEmail();
+      r.placeholder_email = true;
+      r.notes = 'Placeholder email — verify before outreach.';
+    } else {
+      r.placeholder_email = false;
+    }
+    return r;
+  });
+}
+
+function renderMapResults(results) {
+  const wrap = document.getElementById('map-results-wrap');
+  const list = document.getElementById('map-results-list');
+  wrap.style.display = 'block';
+  document.getElementById('select-all-map').checked = false;
+
+  if (!results.length) {
+    list.innerHTML = '<div class="empty-state"><p>No results returned. Try adjusting your search.</p></div>';
+    return;
+  }
+
+  list.innerHTML = results.map(function(r, i) {
+    const color = r.placeholder_email ? 'var(--error)' : (!r.phone ? 'var(--warn)' : 'var(--success)');
+    const name = [r.first, r.last].filter(Boolean).join(' ');
+    const meta = [r.company, r.email, r.phone].filter(Boolean).join(' · ');
+    return '<div class="map-result-row" id="map-row-' + i + '" style="border-left-color:' + color + '">' +
+      '<div class="map-row-head">' +
+      '<input type="checkbox" class="map-row-check" onchange="toggleRowSelect(this,' + i + ')">' +
+      '<div><div class="map-row-name">' + escHtml(r.company || 'Unknown') + (name ? ' — ' + escHtml(name) : '') + '</div>' +
+      '<div class="map-row-meta">' + escHtml(meta) + '</div></div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function addMapLeadsToQueue() {
+  const checkboxes = document.querySelectorAll('.map-row-check');
+  let added = 0;
+  checkboxes.forEach(function(cb, i) {
+    if (cb.checked && mapResults[i]) {
+      const r = mapResults[i];
+      leads.push({
+        id: Date.now() + i,
+        ts: new Date().toISOString(),
+        source: 'map',
+        firstName: r.first || '',
+        lastName: r.last || '',
+        company: r.company || '',
+        title: r.title || '',
+        email: r.email || '',
+        phone: r.phone || '',
+        linkedin: r.website || '',
+        interest: '',
+        temp: 'warm',
+        notes: r.notes || 'Found via Market Map'
+      });
+      added++;
+    }
+  });
+  if (!added) { showToast('Select at least one prospect.'); return; }
+  persistLeads();
+  showToast(added + ' prospect' + (added === 1 ? '' : 's') + ' added to Leads.');
+  switchTab('leads');
+}
+
 async function runMarketMap() {
   const industry = document.getElementById('map-industry').value.trim();
   const company  = document.getElementById('map-company').value.trim();
-  const focus    = document.getElementById('map-focus').value;
   const state    = document.getElementById('map-state').value.trim();
   const city     = document.getElementById('map-city').value.trim();
   const radius   = document.getElementById('map-radius').value;
@@ -2082,29 +2199,25 @@ async function runMarketMap() {
   const content = document.getElementById('map-ai-content');
   btn.disabled = true;
   box.classList.add('visible');
-  content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Generating market intelligence…</span></div>';
-
-  const focusLabels = {
-    competitors: 'competitive landscape analysis',
-    whitespace: 'market whitespace and opportunity gaps',
-    icp: 'ideal customer profile definition',
-    trends: 'industry trends and emerging forces',
-    full: 'comprehensive market map'
-  };
+  document.getElementById('map-results-wrap').style.display = 'none';
+  content.innerHTML = '<div class="ai-thinking"><div class="dot-pulse"><div></div><div></div><div></div></div><span>Searching for real prospects…</span></div>';
 
   const geo = [city, state].filter(Boolean).join(', ');
-  const prompt = `Generate a ${focusLabels[focus]} for:
-Industry/Niche: ${industry}
-${company ? 'Company/Product: ' + company : ''}
-${geo ? 'Location: ' + geo + ' (within ' + radius + ')' : ''}
-Results to include: ${count}
-${context ? 'Context: ' + context : ''}
-
-Provide ${count} specific, actionable results with structured information. Include location details where relevant. Format clearly with headers and bullet points.`;
+  const prompt =
+    'You are a thorough market research assistant. Find ' + count + ' real ' + industry +
+    (geo ? ' in ' + geo + ' (within ' + radius + ')' : '') + '.' +
+    (company ? ' Context: my company is ' + company + '.' : '') +
+    (context ? ' Additional context: ' + context : '') +
+    '\n\nFor each organization: confirm it exists, find its website, and extract a real contact name, email, and phone.' +
+    '\n\nSTRICT RULES:\n' +
+    '- NEVER invent or guess an email address — use only emails actually found on a webpage; leave email as "" if not found\n' +
+    '- NEVER use 555 phone numbers\n' +
+    '- Real data only — fewer accurate records beats many fake ones\n\n' +
+    'Respond with ONLY a valid JSON array, no markdown. Each object: {"company":"","first":"","last":"","title":"","email":"","phone":"","website":""}';
 
   try {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 45000);
+    const timer = setTimeout(() => ctrl.abort(), 90000);
     const res = await fetch(`${PROXY_URL}/map`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2112,28 +2225,17 @@ Provide ${count} specific, actionable results with structured information. Inclu
       signal: ctrl.signal
     });
     clearTimeout(timer);
+    if (!res.ok) throw new Error('bad response');
     const data = await res.json();
-    if (data.error) {
-      content.textContent = data.message || data.error;
-    } else if (Array.isArray(data.result)) {
-      // Format array of company records
-      const lines = data.result.map((r, i) => {
-        const parts = [`${i+1}. ${r.company || r.name || 'Company'}`];
-        if (r.title || r.contact) parts.push(`   Contact: ${r.title || r.contact}`);
-        if (r.email) parts.push(`   Email: ${r.email}`);
-        if (r.phone) parts.push(`   Phone: ${r.phone}`);
-        if (r.location || r.city) parts.push(`   Location: ${r.location || r.city}`);
-        if (r.notes || r.description) parts.push(`   Notes: ${r.notes || r.description}`);
-        return parts.join('\n');
-      });
-      content.textContent = lines.join('\n\n');
-    } else {
-      content.textContent = typeof data.result === 'string' ? data.result : JSON.stringify(data.result || data, null, 2);
-    }
+    const records = Array.isArray(data.result) ? data.result : [];
+    mapResults = assignMapPlaceholders(records);
+    box.classList.remove('visible');
+    renderMapResults(mapResults);
+    if (!records.length) showToast('No results returned. Try again.');
   } catch (e) {
     content.textContent = e.name === 'AbortError'
-      ? 'Request timed out (market map can take up to 45s). Try again.'
-      : 'Market map generation failed. Check your connection.';
+      ? 'Search timed out. Try a narrower search.'
+      : 'Market map failed. Check your connection.';
   } finally {
     btn.disabled = false;
   }
