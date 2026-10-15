@@ -1647,9 +1647,15 @@ async function startQRScanner() {
     return;
   }
   statusEl.textContent = 'Requesting camera…';
+  qrFrames = 0;
   try {
     qrStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      video: {
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        advanced: [{ focusMode: 'continuous' }]
+      }
     });
     const video = document.getElementById('qr-video');
     video.srcObject = qrStream;
@@ -1659,8 +1665,8 @@ async function startQRScanner() {
     document.getElementById('qr-video-container').classList.add('visible');
     document.getElementById('qr-start-btn').style.display = 'none';
     document.getElementById('qr-stop-btn').style.display = '';
-    statusEl.textContent = 'Scanning — hold QR code inside the frame…';
-
+    statusEl.textContent = 'Scanning — hold the QR code inside the frame…';
+    qrLastTick = 0;
     qrAnimFrame = requestAnimationFrame(qrTick);
   } catch (e) {
     statusEl.textContent = 'Camera access denied. Try "Scan QR from Image" below.';
@@ -1668,17 +1674,23 @@ async function startQRScanner() {
 }
 
 let qrLastTick = 0;
+let qrFrames = 0;
 function qrTick(timestamp) {
-  // Throttle to ~8fps so autofocus has time to settle
-  if (timestamp - qrLastTick < 120) { qrAnimFrame = requestAnimationFrame(qrTick); return; }
+  // Throttle to ~7fps so autofocus has time to settle
+  if (timestamp - qrLastTick < 150) { qrAnimFrame = requestAnimationFrame(qrTick); return; }
   qrLastTick = timestamp;
 
   try {
     const video = document.getElementById('qr-video');
     const canvas = document.getElementById('qr-canvas');
-    if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+    if (video.readyState >= 2 && video.videoWidth > 0) {
+      qrFrames++;
+      // Alternate small / full-res decodes — QRs on phone screens (Popl etc.)
+      // often need full resolution, while blurry frames decode better small
+      const targetW = (qrFrames % 2 === 0) ? 640 : video.videoWidth;
+      const scale = video.videoWidth > targetW ? targetW / video.videoWidth : 1;
+      canvas.width = Math.round(video.videoWidth * scale);
+      canvas.height = Math.round(video.videoHeight * scale);
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -1690,6 +1702,13 @@ function qrTick(timestamp) {
         showQRResult(code.data);
         return;
       }
+      // Periodic heartbeat so we know the loop is alive and seeing frames
+      if (qrFrames % 12 === 0) {
+        document.getElementById('qr-status').textContent =
+          'Scanning… (' + qrFrames + ' frames) — hold the QR steady inside the frame';
+      }
+    } else if (qrFrames === 0) {
+      document.getElementById('qr-status').textContent = 'Waiting for camera…';
     }
   } catch (e) {
     // One bad frame must not kill the loop — keep scanning
@@ -1715,7 +1734,14 @@ function showQRResult(data) {
   box.classList.add('visible');
   document.getElementById('qr-status').textContent = '✓ QR code detected!';
 
-  // Try to parse vCard, URL, or plain text
+  // Popl / digital-card links carry a URL, not contact fields —
+  // give them an open-card + auto-read flow instead of the plain form.
+  if (/^https?:\/\//i.test(data.trim())) {
+    showCardLinkResult(data.trim());
+    return;
+  }
+
+  // Try to parse vCard or plain text
   let display = data;
   let formFields = {};
 
@@ -1724,14 +1750,6 @@ function showQRResult(data) {
     const vcf = parseVCard(data);
     formFields = vcf;
     display = formatVCard(vcf);
-  } else if (/^https?:\/\//i.test(data)) {
-    display = 'URL: ' + data;
-    formFields.url = data;
-    // Check for LinkedIn
-    if (data.includes('linkedin.com')) {
-      display += '\n→ LinkedIn profile detected';
-      formFields.linkedin = data;
-    }
   }
 
   content.textContent = display;
@@ -1743,11 +1761,189 @@ function showQRResult(data) {
   if (formFields.org)       document.getElementById('scan-company').value = formFields.org;
   if (formFields.email)     document.getElementById('scan-email').value = formFields.email;
   if (formFields.phone)     document.getElementById('scan-phone').value = formFields.phone;
-  if (formFields.url || formFields.linkedin) {
-    document.getElementById('scan-url').value = formFields.url || formFields.linkedin;
+  if (formFields.url) {
+    document.getElementById('scan-url').value = formFields.url;
   }
   document.getElementById('scan-notes').value = 'QR scan: ' + data.substring(0, 200);
   showToast('QR code decoded!');
+}
+
+/* ── Digital card links (Popl, Dot, LinkedIn…): the QR holds a URL, not
+   contact fields, so offer Open card + a best-effort auto-read of the page ── */
+function detectCardType(url) {
+  if (/popl\.co|poplme\.co/i.test(url))
+    return { name: 'Popl digital card', autoRead: true,
+      hint: 'Popl keeps the contact details on the card page — reading it now…' };
+  if (/dotcards?\.(net|co)|dot\.cards/i.test(url))
+    return { name: 'Dot digital card', autoRead: true,
+      hint: 'Dot keeps the contact details on the card page — reading it now…' };
+  if (/linkedin\.com/i.test(url))
+    return { name: 'LinkedIn profile', autoRead: false,
+      hint: 'LinkedIn needs you to be signed in, so details can\u2019t be auto-filled. Tap Open card to view and connect.' };
+  return { name: 'Digital card link', autoRead: true,
+    hint: 'Reading the linked page for contact details…' };
+}
+
+function showCardLinkResult(url) {
+  const content = document.getElementById('qr-result-content');
+  document.getElementById('scan-lead-form').style.display = 'none';
+  content.innerHTML = '';
+
+  const card = detectCardType(url);
+
+  const title = document.createElement('div');
+  title.style.cssText = 'font-weight:700;margin-bottom:6px;';
+  title.textContent = '🔗 ' + card.name + ' detected';
+  content.appendChild(title);
+
+  const link = document.createElement('div');
+  link.style.cssText = 'font-size:13px;color:#5b6b7b;word-break:break-all;margin-bottom:10px;';
+  link.textContent = url;
+  content.appendChild(link);
+
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
+  const openBtn = document.createElement('button');
+  openBtn.className = 'btn btn-primary';
+  openBtn.style.flex = '1';
+  openBtn.textContent = 'Open card';
+  openBtn.onclick = () => window.open(url, '_blank', 'noopener');
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'btn btn-ghost';
+  copyBtn.textContent = 'Copy link';
+  copyBtn.onclick = () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => showToast('Link copied ✓'));
+    } else {
+      showToast('Long-press to copy: ' + url);
+    }
+  };
+  row.appendChild(openBtn);
+  row.appendChild(copyBtn);
+  content.appendChild(row);
+
+  const note = document.createElement('div');
+  note.style.cssText = 'font-size:13px;color:#5b6b7b;';
+  note.textContent = card.hint;
+  content.appendChild(note);
+
+  showToast('QR code decoded!');
+  if (card.autoRead) {
+    enrichCardUrl(url, card.name, note);
+  } else {
+    // LinkedIn: stash the profile URL on the lead form for reference
+    document.getElementById('scan-lead-form').style.display = 'block';
+    document.getElementById('scan-url').value = url;
+    const slug = (url.match(/linkedin\.com\/in\/([^/?#]+)/i) || [])[1];
+    document.getElementById('scan-notes').value =
+      'LinkedIn QR' + (slug ? ' (' + decodeURIComponent(slug).replace(/-/g, ' ') + ')' : '') + ': ' + url;
+  }
+}
+
+async function enrichCardUrl(url, label, noteEl) {
+  const info = await fetchCardContact(url);
+  if (info && (info.firstName || info.lastName || info.email || info.phone)) {
+    document.getElementById('scan-lead-form').style.display = 'block';
+    if (info.firstName) document.getElementById('scan-first').value = info.firstName;
+    if (info.lastName)  document.getElementById('scan-last').value  = info.lastName;
+    if (info.org)       document.getElementById('scan-company').value = info.org;
+    if (info.email)     document.getElementById('scan-email').value = info.email;
+    if (info.phone)     document.getElementById('scan-phone').value = info.phone;
+    if (info.title)     document.getElementById('scan-title').value = info.title;
+    document.getElementById('scan-url').value = url;
+    document.getElementById('scan-notes').value = label + ' (auto-read): ' + url;
+    noteEl.textContent = '✓ Pulled details from the card — review and Save to Leads.';
+    showToast('Card details loaded ✓');
+  } else {
+    noteEl.textContent = 'Couldn\u2019t auto-read the card page. Tap "Open card" to view it, then add the lead manually.';
+  }
+}
+
+async function fetchCardContact(url) {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url), { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const html = await res.text();
+    return parseCardPage(html);
+  } catch (e) { return null; }
+}
+
+function parseCardPage(html) {
+  const out = {};
+  // 1) __NEXT_DATA__ (Popl and many card pages are Next.js)
+  const nd = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+  if (nd) {
+    try { findContactFields(JSON.parse(nd[1]), out, 0); } catch (e) {}
+  }
+  // 2) JSON-LD Person blocks
+  if (!out.firstName && !out.email) {
+    const blocks = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi) || [];
+    for (const b of blocks) {
+      try {
+        const inner = b.replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '');
+        findContactFields(JSON.parse(inner), out, 0);
+      } catch (e) {}
+    }
+  }
+  // 3) mailto: / tel: links
+  if (!out.email) {
+    const m = html.match(/mailto:([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
+    if (m) out.email = m[1];
+  }
+  if (!out.phone) {
+    const m = html.match(/tel:(\+?[\d][\d\s().-]{6,}[\d])/i);
+    if (m) out.phone = m[1].trim();
+  }
+  // 4) og:title / <title> often hold "Name — Title"
+  if (!out.firstName) {
+    const m = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ||
+              html.match(/<title>([^<]{2,80})<\/title>/i);
+    if (m) {
+      const name = m[1].split(/[|–—\-]/)[0].trim();
+      const parts = name.split(/\s+/);
+      if (parts.length >= 2 && !/popl/i.test(name)) {
+        out.firstName = parts[0];
+        out.lastName = parts.slice(1).join(' ');
+      }
+    }
+  }
+  return out;
+}
+
+const CONTACT_KEYS = {
+  firstName: ['firstname', 'first_name', 'givenname', 'given_name', 'fname'],
+  lastName:  ['lastname', 'last_name', 'familyname', 'family_name', 'surname', 'lname'],
+  name:      ['name', 'fullname', 'full_name', 'displayname', 'display_name'],
+  org:       ['company', 'companyname', 'company_name', 'organization', 'org', 'businessname'],
+  title:     ['title', 'jobtitle', 'job_title', 'position', 'role', 'headline'],
+  email:     ['email', 'emailaddress', 'email_address'],
+  phone:     ['phone', 'phonenumber', 'phone_number', 'mobile', 'mobilephone', 'tel', 'telephone']
+};
+
+function findContactFields(obj, out, depth) {
+  if (!obj || depth > 6 || typeof obj !== 'object') return;
+  if (Array.isArray(obj)) { obj.forEach(o => findContactFields(o, out, depth + 1)); return; }
+  for (const k of Object.keys(obj)) {
+    const kl = k.toLowerCase().replace(/[^a-z]/g, '');
+    const v = obj[k];
+    if (typeof v === 'string' && v.trim()) {
+      const s = v.trim();
+      if (CONTACT_KEYS.firstName.includes(kl) && !out.firstName) out.firstName = s;
+      else if (CONTACT_KEYS.lastName.includes(kl) && !out.lastName) out.lastName = s;
+      else if (CONTACT_KEYS.name.includes(kl) && !out.firstName && s.split(/\s+/).length <= 5) {
+        const p = s.split(/\s+/); out.firstName = p[0]; out.lastName = p.slice(1).join(' ');
+      }
+      else if (CONTACT_KEYS.org.includes(kl) && !out.org && s.length < 80) out.org = s;
+      else if (CONTACT_KEYS.title.includes(kl) && !out.title && s.length < 80) out.title = s;
+      else if (CONTACT_KEYS.email.includes(kl) && !out.email && s.includes('@')) out.email = s;
+      else if (CONTACT_KEYS.phone.includes(kl) && !out.phone && /\d{7,}/.test(s)) out.phone = s;
+    } else if (typeof v === 'object') {
+      findContactFields(v, out, depth + 1);
+    }
+  }
 }
 
 function parseVCard(text) {
