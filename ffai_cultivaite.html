@@ -1453,9 +1453,8 @@ async function extractFromImage() {
       });
       clearTimeout(timer);
       const data = await res.json();
-      const text = data.result || data.content || JSON.stringify(data);
-      content.textContent = text;
-      autoFillCapture(text);
+      const displayText = autoFillCapture(data);
+      content.textContent = displayText || 'Extracted — fields filled below.';
     } catch (e) {
       content.textContent = e.name === 'AbortError'
         ? 'Request timed out. Try again.'
@@ -1464,19 +1463,60 @@ async function extractFromImage() {
   });
 }
 
-function autoFillCapture(text) {
-  const email = text.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
-  const phone = text.match(/[\+\(]?[\d\s\-\(\)]{7,}/);
-  if (email) document.getElementById('cap-email').value = email[0];
-  if (phone) document.getElementById('cap-phone').value = phone[0].trim();
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  if (lines[0]) {
-    const parts = lines[0].split(/\s+/);
-    if (parts.length >= 2) {
-      document.getElementById('cap-first').value = parts[0];
-      document.getElementById('cap-last').value = parts.slice(1).join(' ');
-    }
+/* normalizeResult: proxy returns either a string or a structured object.
+   Returns { text (display string), fields (structured) } */
+function normalizeResult(data) {
+  const r = data.result || data.content || data;
+  if (r && typeof r === 'object' && !Array.isArray(r)) {
+    // Structured object from proxy
+    const fields = {
+      first:   r.first   || r.firstName  || '',
+      last:    r.last    || r.lastName   || '',
+      company: r.company || r.org        || '',
+      title:   r.title   || r.role       || '',
+      email:   r.email   || '',
+      phone:   r.phone   || r.tel        || '',
+      notes:   r.notes   || ''
+    };
+    const lines = [];
+    if (fields.first || fields.last) lines.push(`Name: ${fields.first} ${fields.last}`.trim());
+    if (fields.company) lines.push(`Company: ${fields.company}`);
+    if (fields.title)   lines.push(`Title: ${fields.title}`);
+    if (fields.email)   lines.push(`Email: ${fields.email}`);
+    if (fields.phone)   lines.push(`Phone: ${fields.phone}`);
+    if (fields.notes)   lines.push(`Notes: ${fields.notes}`);
+    return { text: lines.join('\n') || JSON.stringify(r), fields };
   }
+  // Plain string — parse it
+  const text = String(r || '');
+  const emailM = text.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
+  const phoneM = text.match(/[\+\(]?[\d\s\-\(\)]{7,}/);
+  const lines  = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const nameLine = lines[0] ? lines[0].replace(/^name:?\s*/i,'') : '';
+  const parts = nameLine.split(/\s+/);
+  return {
+    text,
+    fields: {
+      first:   parts[0] || '',
+      last:    parts.slice(1).join(' ') || '',
+      company: '',
+      title:   '',
+      email:   emailM ? emailM[0] : '',
+      phone:   phoneM ? phoneM[0].trim() : '',
+      notes:   ''
+    }
+  };
+}
+
+function autoFillCapture(data) {
+  const { text, fields } = normalizeResult(data);
+  if (fields.first)   document.getElementById('cap-first').value   = fields.first;
+  if (fields.last)    document.getElementById('cap-last').value    = fields.last;
+  if (fields.company) document.getElementById('cap-company').value = fields.company;
+  if (fields.title)   document.getElementById('cap-title').value   = fields.title;
+  if (fields.email)   document.getElementById('cap-email').value   = fields.email;
+  if (fields.phone)   document.getElementById('cap-phone').value   = fields.phone;
+  return text;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1529,9 +1569,8 @@ async function processScanImage() {
       });
       clearTimeout(timer);
       const data = await res.json();
-      const text = data.result || data.content || JSON.stringify(data);
-      content.textContent = text;
-      populateScanForm(text);
+      const displayText = populateScanForm(data);
+      content.textContent = displayText || 'Extracted — fields filled below.';
     } catch (e) {
       content.textContent = e.name === 'AbortError'
         ? 'Request timed out. Try again.'
@@ -1541,23 +1580,19 @@ async function processScanImage() {
   });
 }
 
-function populateScanForm(text) {
+function populateScanForm(data) {
+  const { text, fields } = normalizeResult(data);
   document.getElementById('scan-lead-form').style.display = 'block';
-  const email = text.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
-  const phone = text.match(/[\+\(]?[\d\s\-\(\)]{7,}/);
-  const url = text.match(/https?:\/\/[^\s]+/i) || text.match(/linkedin\.com\/[^\s]+/i);
-  if (email) document.getElementById('scan-email').value = email[0];
-  if (phone) document.getElementById('scan-phone').value = phone[0].trim();
-  if (url) document.getElementById('scan-url').value = url[0];
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  if (lines[0]) {
-    const parts = lines[0].split(/\s+/);
-    if (parts.length >= 2) {
-      document.getElementById('scan-first').value = parts[0];
-      document.getElementById('scan-last').value = parts.slice(1).join(' ');
-    }
-  }
+  if (fields.first)   document.getElementById('scan-first').value   = fields.first;
+  if (fields.last)    document.getElementById('scan-last').value    = fields.last;
+  if (fields.company) document.getElementById('scan-company').value = fields.company;
+  if (fields.email)   document.getElementById('scan-email').value   = fields.email;
+  if (fields.phone)   document.getElementById('scan-phone').value   = fields.phone;
+  // also check for URL in plain text
+  const urlM = text.match(/https?:\/\/[^\s]+/i) || text.match(/linkedin\.com\/[^\s]+/i);
+  if (urlM) document.getElementById('scan-url').value = urlM[0];
   document.getElementById('scan-notes').value = text.substring(0, 300);
+  return text;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1762,9 +1797,8 @@ async function extractFromVoice() {
     });
     clearTimeout(timer);
     const data = await res.json();
-    const text = data.result || data.content || JSON.stringify(data);
-    content.textContent = text;
-    populateVoiceForm(text);
+    const displayText = populateVoiceForm(data);
+    content.textContent = displayText || 'Extracted — fields filled below.';
   } catch (e) {
     content.textContent = e.name === 'AbortError'
       ? 'Request timed out. Try again.'
@@ -1773,21 +1807,16 @@ async function extractFromVoice() {
   }
 }
 
-function populateVoiceForm(text) {
+function populateVoiceForm(data) {
+  const { text, fields } = normalizeResult(data);
   document.getElementById('voice-lead-form').style.display = 'block';
-  const email = text.match(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
-  const phone = text.match(/[\+\(]?[\d\s\-\(\)]{7,}/);
-  if (email) document.getElementById('voice-email').value = email[0];
-  if (phone) document.getElementById('voice-phone').value = phone[0].trim();
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  if (lines[0]) {
-    const parts = lines[0].replace(/^name:?\s*/i,'').split(/\s+/);
-    if (parts.length >= 2) {
-      document.getElementById('voice-first').value = parts[0];
-      document.getElementById('voice-last').value = parts.slice(1).join(' ');
-    }
-  }
+  if (fields.first)   document.getElementById('voice-first').value   = fields.first;
+  if (fields.last)    document.getElementById('voice-last').value    = fields.last;
+  if (fields.company) document.getElementById('voice-company').value = fields.company;
+  if (fields.email)   document.getElementById('voice-email').value   = fields.email;
+  if (fields.phone)   document.getElementById('voice-phone').value   = fields.phone;
   document.getElementById('voice-notes').value = document.getElementById('voice-transcript').value.substring(0, 300);
+  return text;
 }
 
 /* ═══════════════════════════════════════════════
