@@ -35,7 +35,7 @@ app.post('/map', async (req, res) => {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-4-5',
         max_tokens: 4000,
         tools: [
           {
@@ -159,7 +159,7 @@ app.post('/extract', async (req, res) => {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-haiku-4-5-20250307',
         max_tokens: 300,
         messages: [{ role: 'user', content }]
       })
