@@ -1675,13 +1675,11 @@ function showQRResult(data) {
     formFields = vcf;
     display = formatVCard(vcf);
   } else if (data.startsWith('http')) {
-    display = 'URL: ' + data;
+    display = 'URL detected — extracting contact info…';
     formFields.url = data;
-    // Check for LinkedIn
-    if (data.includes('linkedin.com')) {
-      display += '\n→ LinkedIn profile detected';
-      formFields.linkedin = data;
-    }
+    if (data.includes('linkedin.com')) formFields.linkedin = data;
+    // Auto-extract contact from URL via proxy
+    extractFromQRUrl(data, content);
   }
 
   content.textContent = display;
@@ -1698,6 +1696,33 @@ function showQRResult(data) {
   }
   document.getElementById('scan-notes').value = 'QR scan: ' + data.substring(0, 200);
   showToast('QR code decoded!');
+}
+
+async function extractFromQRUrl(url, contentEl) {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const res = await fetch(`${PROXY_URL}/extract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript: 'Extract contact info from this profile URL: ' + url }),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    const data = await res.json();
+    const { text, fields } = normalizeResult(data);
+    if (contentEl) contentEl.textContent = text || 'Contact info extracted.';
+    if (fields.first)   document.getElementById('scan-first').value   = fields.first;
+    if (fields.last)    document.getElementById('scan-last').value    = fields.last;
+    if (fields.company) document.getElementById('scan-company').value = fields.company;
+    if (fields.title)   { /* scan form has no title field, put in notes */ }
+    if (fields.email)   document.getElementById('scan-email').value   = fields.email;
+    if (fields.phone)   document.getElementById('scan-phone').value   = fields.phone;
+    document.getElementById('scan-url').value = url;
+  } catch(e) {
+    if (contentEl) contentEl.textContent = 'Could not extract from URL. Fill in manually.';
+    document.getElementById('scan-url').value = url;
+  }
 }
 
 function parseVCard(text) {
@@ -2079,8 +2104,8 @@ Provide ${count} specific, actionable results with structured information. Inclu
 
   try {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
-    const res = await fetch(`${PROXY_URL}/market-map`, {
+    const timer = setTimeout(() => ctrl.abort(), 45000);
+    const res = await fetch(`${PROXY_URL}/map`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt }),
@@ -2088,10 +2113,26 @@ Provide ${count} specific, actionable results with structured information. Inclu
     });
     clearTimeout(timer);
     const data = await res.json();
-    content.textContent = data.result || data.content || JSON.stringify(data);
+    if (data.error) {
+      content.textContent = data.message || data.error;
+    } else if (Array.isArray(data.result)) {
+      // Format array of company records
+      const lines = data.result.map((r, i) => {
+        const parts = [`${i+1}. ${r.company || r.name || 'Company'}`];
+        if (r.title || r.contact) parts.push(`   Contact: ${r.title || r.contact}`);
+        if (r.email) parts.push(`   Email: ${r.email}`);
+        if (r.phone) parts.push(`   Phone: ${r.phone}`);
+        if (r.location || r.city) parts.push(`   Location: ${r.location || r.city}`);
+        if (r.notes || r.description) parts.push(`   Notes: ${r.notes || r.description}`);
+        return parts.join('\n');
+      });
+      content.textContent = lines.join('\n\n');
+    } else {
+      content.textContent = typeof data.result === 'string' ? data.result : JSON.stringify(data.result || data, null, 2);
+    }
   } catch (e) {
     content.textContent = e.name === 'AbortError'
-      ? 'Request timed out. Try again.'
+      ? 'Request timed out (market map can take up to 45s). Try again.'
       : 'Market map generation failed. Check your connection.';
   } finally {
     btn.disabled = false;
