@@ -1448,7 +1448,7 @@ async function extractFromImage() {
       const res = await fetch(`${PROXY_URL}/extract`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: resizedB64 }),
+        body: JSON.stringify({ imageBase64: resizedB64, mediaType: 'image/jpeg' }),
         signal: ctrl.signal
       });
       clearTimeout(timer);
@@ -1564,7 +1564,7 @@ async function processScanImage() {
       const res = await fetch(`${PROXY_URL}/extract`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: resizedB64 }),
+        body: JSON.stringify({ imageBase64: resizedB64, mediaType: 'image/jpeg' }),
         signal: ctrl.signal
       });
       clearTimeout(timer);
